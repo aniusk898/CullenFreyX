@@ -12,23 +12,24 @@ utils::globalVariables(
     "gamma_line"
   )
 )
-#' Launch the Cullen-Frey Graph Shiny Application
+#' Run the Cullen-Frey Interactive Graph Application
 #'
-#' This function calculates key statistics (skewness, kurtosis, etc.) for a given dataset and
-#' prepares data for the Cullen-Frey graph. It then launches a Shiny application that
-#' provides an interactive visualization of the Cullen-Frey graph based on the calculated statistics.
+#' This function launches a Shiny web application that allows users to interactively explore
+#' the Cullen-Frey graph. It requires preprocessed data inputs for plotting, which should be
+#' provided as arguments to the function.
 #'
 #' @param data A numeric vector representing the dataset to be analyzed.
-#' The dataset must contain at least 4 data points.
+#' @param data_filtered A data frame containing the filtered beta distribution data for plotting.
+#' @param theoretical_points A data frame containing the theoretical distribution points.
+#' @param lognormal_line A data frame containing the lognormal line data for plotting.
+#' @param gamma_line A data frame containing the gamma line data for plotting.
 #'
-#' @return This function does not return any value. It launches the Shiny application
-#' displaying the Cullen-Frey graph.
+#' @return Launches the Shiny web application.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' data <- rnorm(100)
-#' launch_cullen_frey_app(data)
+#' run_app(data, data_filtered, theoretical_points, lognormal_line, gamma_line)
 #' }
 launch_cullen_frey_app <- function(data) {
   # Calculate statistics for the provided data
@@ -83,7 +84,6 @@ launch_cullen_frey_app <- function(data) {
   data_filtered$distribution <- "Beta Distribution"
 
   # Launch the Shiny app
-  run_app()
+  run_app(data, data_filtered, theoretical_points, lognormal_line, gamma_line)
 }
-
 
