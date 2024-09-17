@@ -25,9 +25,3 @@ This function launches a Shiny web application that allows users to interactivel
 the Cullen-Frey graph. It requires preprocessed data inputs for plotting, which should be
 provided as arguments to the function.
 }
-\examples{
-\dontrun{
-# Assuming you have prepared the necessary data:
-run_app(data_filtered, theoretical_points, lognormal_line, gamma_line)
-}
-}

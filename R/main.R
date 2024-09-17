@@ -19,18 +19,8 @@ utils::globalVariables(
 #' provided as arguments to the function.
 #'
 #' @param data A numeric vector representing the dataset to be analyzed.
-#' @param data_filtered A data frame containing the filtered beta distribution data for plotting.
-#' @param theoretical_points A data frame containing the theoretical distribution points.
-#' @param lognormal_line A data frame containing the lognormal line data for plotting.
-#' @param gamma_line A data frame containing the gamma line data for plotting.
-#'
 #' @return Launches the Shiny web application.
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' run_app(data, data_filtered, theoretical_points, lognormal_line, gamma_line)
-#' }
 launch_cullen_frey_app <- function(data) {
   # Calculate statistics for the provided data
   stats_test <- calculate_statistics(data)

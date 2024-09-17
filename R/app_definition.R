@@ -22,12 +22,6 @@ NULL
 #'
 #' @return Launches the Shiny web application.
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Assuming you have prepared the necessary data:
-#' run_app(data_filtered, theoretical_points, lognormal_line, gamma_line)
-#' }
 run_app <- function(data, data_filtered, theoretical_points, lognormal_line, gamma_line) {
 
   ui <- fluidPage(
@@ -41,7 +35,7 @@ run_app <- function(data, data_filtered, theoretical_points, lognormal_line, gam
     ),
 
     fluidRow(
-      column(6, div(style = "display: inline-block; width: 60%; vertical-align:top;",
+      column(3, div(style = "display: inline-block; width: 60%; vertical-align:top;",
                     selectInput("bootstrapMethod", "Choose a Bootstrap Method:",
                                 choices = c("None", "Bootstrap Samples", "Bootstrap Unbiased"),
                                 selected = "None")),
