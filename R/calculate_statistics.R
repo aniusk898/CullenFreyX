@@ -80,13 +80,13 @@ calculate_statistics.numeric <- function(data) {
   # Skewness calculation
   skewness <- function(data) {
     sd <- sqrt(moment(data, 2))
-    return(moment(data, 3) / sd^3)
+    return(moment(data, 3) / sd ^ 3)
   }
 
   # Kurtosis calculation
   kurtosis <- function(data) {
     var <- moment(data, 2)
-    return(moment(data, 4) / var^2)
+    return(moment(data, 4) / var ^ 2)
   }
 
   # Calculate skewness and kurtosis
@@ -97,7 +97,7 @@ calculate_statistics.numeric <- function(data) {
   min_data <- min(data)
   max_data <- max(data)
   median_data <- median(data)
-  skewness_squared <- skewness_data^2
+  skewness_squared <- skewness_data ^ 2
 
   # Create result list with the "statistics" class
   result <- list(

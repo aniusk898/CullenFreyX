@@ -2,26 +2,16 @@
 % Please edit documentation in R/method_function.R
 \name{method.sample}
 \alias{method.sample}
-\title{Sample Method for Skewness and Kurtosis Calculation}
+\title{Sample Method for Calculating Skewness and Kurtosis}
 \usage{
 \method{method}{sample}(data)
 }
 \arguments{
-\item{data}{A numeric vector for which the skewness and kurtosis will be calculated.}
+\item{data}{A numeric vector for which skewness and kurtosis will be calculated.}
 }
 \value{
-A list with the following components:
-\describe{
-\item{skewness}{The skewness of the data.}
-\item{kurtosis}{The kurtosis (excess kurtosis) of the data.}
-}
+A list containing skewness and kurtosis.
 }
 \description{
-This function calculates the skewness and kurtosis for a given dataset using the sample method.
-The skewness and kurtosis are computed based on moments of the data, with kurtosis representing the Fisher kurtosis (excess kurtosis).
-}
-\examples{
-data <- rnorm(100)
-result <- method.sample(data)
-print(result)
+This function calculates skewness and kurtosis for a numeric dataset using the 'sample' method.
 }

@@ -37,11 +37,9 @@ ui <- fluidPage(
                   choices = c("All", "Beta Distribution", "Lognormal", "Gamma", "Observed", "Normal", "Uniform", "Logistic", "Exponential"),
                   selected = "All"),
       colourInput("colorPicker", "Choose Distribution Color:", value = "darkgreen"),
-      # Subpanel para dos filas de botones de colores con espacio vertical
       tags$div(
         style = "border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;",
         h4("Colorblind Friendly Palette"),
-        # Primera fila de colores
         fluidRow(
           column(12, div(
             style = "display: flex; justify-content: space-between; margin-bottom: 15px;",  # Espacio vertical añadido
@@ -55,7 +53,6 @@ ui <- fluidPage(
             actionButton("color_cud8", "", style = "background-color: #999999; border-radius: 50%; width: 30px; height: 30px; border: none;")
           ))
         ),
-        # Segunda fila de colores
         fluidRow(
           column(12, div(
             style = "display: flex; justify-content: space-between;",
@@ -96,12 +93,12 @@ server <- function(input, output, session) {
 
   selected_color <- reactiveVal("#FF5733")
 
-  # Cambiar el color de las distribuciones cuando el usuario lo cambia en el colorPicker
+  # Change the distributions color
   observeEvent(input$colorPicker, {
     selected_color(input$colorPicker)
   })
 
-  # Cambios de color para los botones de la paleta colorblind friendly
+  # Color friendly colors
   observeEvent(input$color_cud1, { selected_color("#D55E00") })
   observeEvent(input$color_cud2, { selected_color("#0072B2") })
   observeEvent(input$color_cud3, { selected_color("#009E73") })
@@ -153,7 +150,7 @@ server <- function(input, output, session) {
     }
   })
 
-  # Mostrar comentarios almacenados
+  # Show stored comments
   output$commentBox <- renderUI({
     if (commentsVisible()) {
       all_comments <- tooltip_texts()
@@ -176,7 +173,7 @@ server <- function(input, output, session) {
     }
   })
 
-  # Función reactiva para manejar los datos del bootstrap usando el número de muestras seleccionado
+  # Reactive function to handle the bootsrap data according to the selected number of samples
   bootstrap_data <- reactive({
     num_samples <- input$numSamples
 
@@ -193,7 +190,6 @@ server <- function(input, output, session) {
     }
   })
 
-  # Renderizar el gráfico usando ggplotly
   output$distPlot <- renderPlotly({
     color_map <- c(
       "Beta Distribution" = ifelse(input$distributionSelect == "Beta Distribution", selected_color(), "lightgrey"),
@@ -219,7 +215,7 @@ server <- function(input, output, session) {
       p <- p + geom_point(data = bootstrap_data(), aes(x = squared_skewness, y = kurtosis, color = input$bootstrapMethod), size = 2, alpha = 0.6)
     }
 
-    # Finalizar el gráfico
+
     p <- p + scale_y_reverse(limits = c(10, 0)) +
       scale_color_manual(values = color_map) +
       scale_shape_manual(values = c("Observed" = 1, "Normal" = 8, "Uniform" = 2, "Logistic" = 3, "Exponential" = 7)) +
@@ -229,11 +225,10 @@ server <- function(input, output, session) {
       theme(legend.position = "top") +
       guides(
         color = guide_legend(title = "Distributions"),
-        shape = FALSE,
-        linetype = FALSE
+        shape = "none",
+        linetype = "none"
       )
 
-    # Convertir el gráfico ggplot a plotly para interactividad
     p_plotly <- ggplotly(p, tooltip = c("x", "y", "color"))
     for (i in seq_along(p_plotly$x$data)) {
       dist_name <- p_plotly$x$data[[i]]$name
@@ -267,9 +262,10 @@ server <- function(input, output, session) {
 #' @return Launches the Shiny web application.
 #' @export
 #' @examples
-#' \dontrun{
+#'\dontrun{
 #' run_app()
 #' }
+
 run_app <- function() {
   shinyApp(ui = ui, server = server)
 }

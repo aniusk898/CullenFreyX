@@ -1,5 +1,3 @@
-library(testthat)
-
 # Test for calculate_statistics function with valid data
 test_that("calculate_statistics works correctly for a simple dataset", {
   data <- c(1, 2, 3, 4, 5)
@@ -15,13 +13,15 @@ test_that("calculate_statistics works correctly for a simple dataset", {
 # Test that calculate_statistics throws an error for small datasets (<4 data points)
 test_that("calculate_statistics throws error for small datasets", {
   data <- c(1, 2, 3)
-  expect_error(calculate_statistics(data), "Skewness and Kurtosis require at least 4 data points.")
+  expect_error(calculate_statistics(data),
+               "Skewness and Kurtosis require at least 4 data points.")
 })
 
 # Test that calculate_statistics handles NA values by throwing an error
 test_that("calculate_statistics throws error for NA values", {
   data <- c(1, 2, NA, 4, 5)
-  expect_error(calculate_statistics(data), "NA values are not allowed in the dataset.")
+  expect_error(calculate_statistics(data),
+               "NA values are not allowed in the dataset.")
 })
 
 # Test that calculate_statistics handles non-numeric elements by throwing an error
@@ -34,7 +34,8 @@ test_that("calculate_statistics throws an error for non-numeric values", {
 # Test that calculate_statistics handles infinite values by throwing an error
 test_that("calculate_statistics throws error for Inf values", {
   data <- c(1, 2, Inf, 4, 5)
-  expect_error(calculate_statistics(data), "Inf values are not allowed in the dataset.")
+  expect_error(calculate_statistics(data),
+               "Inf values are not allowed in the dataset.")
 })
 
 # Test that calculate_statistics throws an error if input is not a vector

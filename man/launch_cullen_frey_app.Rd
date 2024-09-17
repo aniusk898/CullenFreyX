@@ -20,6 +20,8 @@ prepares data for the Cullen-Frey graph. It then launches a Shiny application th
 provides an interactive visualization of the Cullen-Frey graph based on the calculated statistics.
 }
 \examples{
+\dontrun{
 data <- rnorm(100)
 launch_cullen_frey_app(data)
+}
 }

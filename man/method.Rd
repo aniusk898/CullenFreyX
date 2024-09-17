@@ -7,16 +7,12 @@
 method(data)
 }
 \arguments{
-\item{data}{A numeric vector for which skewness and kurtosis will be calculated.}
+\item{data}{A numeric vector or data for which skewness and kurtosis are calculated.}
 }
 \value{
-The function returns a list containing the calculated skewness and kurtosis for the given data, depending on the method used.
+A list containing skewness and kurtosis.
 }
 \description{
-This is a generic function for calculating statistical measures such as skewness and kurtosis.
-It dispatches to specific methods like \code{method.sample} or \code{method.unbiased}, depending on the class of the input data.
-}
-\examples{
-data <- rnorm(100)
-result <- method(data)
+This function dispatches the calculation of skewness and kurtosis based on the class of the input data.
+The method can be 'sample' or 'unbiased'.
 }

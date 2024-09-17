@@ -2,26 +2,16 @@
 % Please edit documentation in R/method_function.R
 \name{method.unbiased}
 \alias{method.unbiased}
-\title{Unbiased Method for Skewness and Kurtosis Calculation}
+\title{Unbiased Method for Calculating Skewness and Kurtosis}
 \usage{
 \method{method}{unbiased}(data)
 }
 \arguments{
-\item{data}{A numeric vector for which the unbiased skewness and kurtosis will be calculated.}
+\item{data}{A numeric vector for which skewness and kurtosis will be calculated.}
 }
 \value{
-A list with the following components:
-\describe{
-\item{skewness}{The unbiased skewness of the data.}
-\item{kurtosis}{The unbiased kurtosis of the data.}
-}
+A list containing skewness and kurtosis.
 }
 \description{
-This function calculates skewness and kurtosis for a given dataset using the unbiased method.
-The skewness and kurtosis are computed using unbiased estimators, adjusting for sample size.
-}
-\examples{
-data <- rnorm(100)
-result <- method.unbiased(data)
-print(result)
+This function calculates skewness and kurtosis for a numeric dataset using the 'unbiased' method.
 }
