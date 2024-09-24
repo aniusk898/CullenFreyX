@@ -1,5 +1,10 @@
 ---
-output: rmarkdown::html_vignette
+title: "Cullen-Frey Vignette"
+output: 
+  rmarkdown::html_vignette:
+    css: styles.css
+    toc: true
+    number_sections: true
 vignette: >
   %\VignetteIndexEntry{CFX_vignettes}
   %\VignetteEncoding{UTF-8}
@@ -34,70 +39,96 @@ library(CullenFreyX)
 ```
 
 The main feature of this package is an interactive Shiny application, which can be launched with the following command:
+
 ```{r}
 data = rnorm(100) #Generate a dataset to test the app
 launch_cullen_frey_app(data) # Launch the app
-```
-This will launch the application in a new window, where you can select datasets, customize distributions, and adjust colors using an interactive palette.
-Once the app is running, you can:
-
-- Select datasets from a dropdown menu.
-- Choose between bootstrap sampling methods.
-- Customize the colors of distributions using the `colourInput` or pre-defined colorblind-friendly buttons.
-- Insert comments for each distribution.
-- Activate/deactivate distributions display.
-
-### Running the Bootstrap Method
-```{r, fig.align="center", out.width="70%", echo=FALSE}
-knitr::include_graphics("images/SelectDatasetBoots.png")
-```
-
-follow these steps to perform the bootstrap analysis:
-
-1. **Select a Dataset**: First, choose the dataset you want to analyze from the *"Select Dataset"* dropdown menu.
-   
-2. **Select the Bootstrap Method**: Next, pick a bootstrap method from the dropdown:
-   - **Bootstrap Samples**: This method generates standard bootstrap samples.
-   - **Bootstrap Unbiased**: This method generates unbiased bootstrap samples for more accurate estimates.
-
-3. **Set the Number of Bootstrap Samples**: Adjust the number of bootstrap samples interactively by using the numeric input field. This allows you to see real-time updates as the number of samples changes.
-
-The app will update the plot based on your choices, displaying the bootstrap results accordingly.
-
-
-
-
-
-
-### Customizing Distribution Colors
-```{r, fig.align="center", out.width="70%", echo=FALSE}
-knitr::include_graphics("images/colourPicker.png")
-knitr::include_graphics("images/colorBlind.png")
-```
-
-The app provides real-time customization of distribution colors, but first, you must select the distribution you wish to customize. After selecting the distribution from the dropdown menu, you can adjust its color using two options:
-
-1. **Colour Picker**: Click on the color picker labeled *"Choose Distribution Color"* to open a palette, and select your preferred color.
-
-2. **Colorblind-Friendly Preset Buttons**: Alternatively, you can choose a preset from the colorblind-friendly buttons for easy selection of accessible colors.
-
-This customization allows for a clearer visual distinction between different distributions in the graph.
-
-### Inserting Comments
-```{r, fig.align="center", out.width="70%", echo=FALSE}
-knitr::include_graphics("images/Comment.png")
 
 ```
-A useful feature of the app is the ability to add comments for each distribution, which can be saved and displayed interactively.
-Within the app:
+This will launch the Cullen-Frey interactive graph application in a new window. In this app, you can interact with datasets, adjust graph settings, and customize the appearance of the graph. Once the app is running, you will be able to:
 
--Select a distribution.
--Type a comment in the text box.
--Click "Save" to store the comment.
--Use the "Show Comments" button to toggle visibility of saved comments
+- **Select a Dataset**: Choose datasets from a dropdown menu that automatically populates based on the data input.
+- **Select Data Type**: Toggle between continuous or discrete distributions, depending on your dataset.
+- **Bootstrap Sampling Options**: Choose from different bootstrap methods (or none) and specify the number of samples.
+- **Customize Distribution Colors**: Use the colourInput feature or select from pre-defined colorblind-friendly palettes to change the colors of the displayed distributions.
+- **Insert Comments**: Add custom comments for each distribution, which will be displayed on hover in the graph.
+- **Adjust Display Settings**: You can dynamically adjust the point size, transparency (alpha), and font size for the plot.
+- **Enable/Disable Distributions**: Toggle the visibility of specific distributions to focus on certain types of data or analysis.
+- **Download Graph**: Export the graph in PNG format or download a report in PDF format with the graph, statistics, and comments included.
+
+# Dataset and Download Controls Panel
+
+```{r, fig.align="center", out.width="80%", echo=FALSE}
+knitr::include_graphics("images/1.png")
+```
+
+- **Title**: "Interactive Cullen-Frey Graph"
+- This panel allows users to select the dataset and configure bootstrapping settings for the analysis:
+  - **Select a Dataset Column**: Dropdown to select a specific dataset column for analysis.
+  - **Data Type**: Radio buttons to switch between analyzing continuous and discrete data.
+  - **Choose a Bootstrap Method**: Dropdown to select different bootstrapping methods (Bootstrap Samples or Bootstrap Unbiased).
+  - **Number of Samples**: Numeric input to define the number of bootstrap samples to be generated.
+  - **Download PNG / PDF**: Buttons that allow users to download the graph as a PNG image or generate a PDF report, including statistics and comments.
+
+# Distribution and Aesthetic Controls Panel
+
+```{r, fig.align="center", out.width="30%", echo=FALSE}
+knitr::include_graphics("images/2.png")
+```
+
+- This panel provides controls for customizing the appearance and behavior of the plot:
+  - **Select a Continuous Distribution**: A dropdown allows users to choose which distribution they want to analyze or compare.
+  - **Choose Font Family**: A dropdown to select the font style used in the plot's labels.
+  - **Insert a Comment**: A text input where users can add comments to their plot for reference.
+  - **Choose Distribution Color**: A color picker to change the color assigned to the selected distribution.
+  - **Colorblind Friendly Palette**: A set of color buttons that provide preset color options for colorblind users.
+  - **Point Size**: A slider to adjust the size of the data points in the plot.
+  - **Point Transparency**: A slider to control the transparency of the points plotted in the Cullen-Frey graph.
+  - **Font Size**: A slider to adjust the font size used in the plot.
+  - **Text Size**: A slider to adjust the text size for the entire app interface.
+  - **Save Changes**: A button to save the chosen settings and apply them to the plot.
+
+# Interactive Plot Display Panel
+```{r, fig.align="center", out.width="50%", echo=FALSE}
+knitr::include_graphics("images/3.png")
+```
+
+- This central panel displays the Cullen-Frey graph, which includes the observed distribution plotted alongside theoretical distributions (Normal, Uniform, Logistic, Exponential, etc.). 
+- The plot has a labeled legend on the right-hand side, indicating each distribution's name and corresponding color.
+- Users can visually compare the skewness and kurtosis of the observed data against theoretical distributions.
+- The plot responds dynamically based on user-selected data, color, point size, and transparency.
+
 
 ### Comments in Tooltips
-```{r, fig.align="center", out.width="70%", echo=FALSE}
+```{r, fig.align="center", out.width="30%", echo=FALSE}
 knitr::include_graphics("images/tooltip.png")
 
 ```
+
+# Examples os usage
+```{r}
+# Example 1: Named list of numeric vectors
+data1 <- list(a = rnorm(100), b = runif(100))
+
+# Example 2: Unnamed list of numeric vectors
+data2 <- list(rpois(100, lambda = 5), rexp(100))
+
+# Example 3: Simple numeric vector
+data3 <- rnorm(10)
+
+# Example 4: Matrix (which can be treated as a list of columns)
+data4 <- matrix(rnorm(20), nrow = 10, ncol = 2)
+
+# Example 5: Named numeric vector
+data5 <- c(a = rnorm(100), b = runif(100))
+
+# Example 6😬: Unnamed numeric vector
+data6 <- c(rnorm(3), runif(100))
+
+
+# Example 7: Empty data frame
+data7 <- data.frame()
+```
+
+
+
