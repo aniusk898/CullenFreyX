@@ -3,11 +3,11 @@
 #' @import webshot2
 #' @import htmlwidgets
 #' @importFrom plotly ggplotly renderPlotly plotlyOutput
-#' @import ggplot2 
-#' @importFrom colourpicker colourInput
+#' @import ggplot2
+#' @importFrom colourpicker colourInput updateColourInput
 #' @importFrom stats median
 #' @importFrom utils data
-#' @import Rcpp
+#' @importFrom Rcpp evalCpp
 #' @useDynLib CullenFreyX, .registration = TRUE
 NULL
 
