@@ -7,7 +7,7 @@
 launch_cullen_frey_app(data)
 }
 \arguments{
-\item{data}{A numeric vector representing the dataset to be analyzed.}
+\item{data}{A numeric vector, list or dataframe that contains the datasets to be analyzed.}
 }
 \value{
 Launches the Shiny web application.

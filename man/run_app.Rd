@@ -4,18 +4,10 @@
 \alias{run_app}
 \title{Run the Cullen-Frey Interactive Graph Application}
 \usage{
-run_app(data, data_filtered, theoretical_points, lognormal_line, gamma_line)
+run_app(data)
 }
 \arguments{
 \item{data}{A numeric vector representing the dataset to be analyzed.}
-
-\item{data_filtered}{A data frame containing the filtered beta distribution data for plotting.}
-
-\item{theoretical_points}{A data frame containing the theoretical distribution points.}
-
-\item{lognormal_line}{A data frame containing the lognormal line data for plotting.}
-
-\item{gamma_line}{A data frame containing the gamma line data for plotting.}
 }
 \value{
 Launches the Shiny web application.

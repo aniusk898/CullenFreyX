@@ -15,7 +15,10 @@ Imports:
     Rcpp,
     shiny,
     stats,
-    utils
+    utils,
+    htmlwidgets,
+    shinyWidgets,
+    webshot2
 LinkingTo: 
     Rcpp
 Suggests:
