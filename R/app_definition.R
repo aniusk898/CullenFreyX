@@ -209,7 +209,7 @@ run_app <- function(data) {
                 
                 # Save and clear buttons for comments
                 fluidRow(column(6, actionButton(
-                    "saveBtn", "Save"
+                    "saveBtn", "Submit"
                 )), column(6, actionButton(
                     "clearBtn", "Clear"
                 ))),
@@ -256,8 +256,7 @@ run_app <- function(data) {
                     ))
                 ),
                 
-                # Save color button
-                actionButton("saveColorBtn", "Save Color"),
+                
                 
                 # Sliders for point size, transparency, and font size
                 div(
@@ -345,8 +344,11 @@ run_app <- function(data) {
                         actionButton("infoFontSize", "?", style = "background-color: grey; color: white; border-radius: 100%; width: 25px; height: 25px; border: none; margin-left: 10px; font-size: 14px; line-height: 25px; text-align: center; padding: 0;"),
                         span(class = "tooltip-text", "Adjust the font size for the text in the app.")
                     )
-                )
+                ),
+                # Save color button
+                actionButton("saveColorBtn", "Save Changes"),
             ),
+            
             
             # Main panel for plot output and statistics/comments sections
             mainPanel(
