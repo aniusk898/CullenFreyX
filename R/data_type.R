@@ -51,9 +51,8 @@ data_type.continuous <- function(data, ...) {
                 gamma_line = gamma_line,
                 lognormal_line = lognormal_line))
 }
-data_type.discrete Function
-r
-Copy code
+
+# Method for discrete data
 data_type.discrete <- function(data, ...) {
     # Calculate basic statistics for the discrete data (min, max, skewness, kurtosis, etc.)
     stats_test <- calculate_statistics(data)
@@ -99,3 +98,4 @@ data_type.discrete <- function(data, ...) {
                 theoretical_points = theoretical_points,
                 poisson_line = poisson_line))
 }
+
