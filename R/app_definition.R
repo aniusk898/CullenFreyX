@@ -2,8 +2,8 @@
 #' @import shinyWidgets
 #' @import webshot2
 #' @import htmlwidgets
-#' @importFrom plotly ggplotly renderPlotly plotlyOutput
 #' @import ggplot2
+#' @importFrom plotly ggplotly renderPlotly plotlyOutput
 #' @importFrom colourpicker colourInput updateColourInput
 #' @importFrom stats median
 #' @importFrom utils data
@@ -265,7 +265,7 @@ run_app <- function(data) {
                         class = "slider-input",
                         sliderInput(
                             "pointSize",
-                            "Point Size:",
+                            "Point and line Size:",
                             min = 1,
                             max = 10,
                             value = 3,
@@ -287,7 +287,7 @@ run_app <- function(data) {
                         class = "slider-input",
                         sliderInput(
                             "pointAlpha",
-                            "Point Transparency:",
+                            "Point and line Transparency:",
                             min = 0.1,
                             max = 1,
                             value = 0.6,
@@ -368,12 +368,14 @@ run_app <- function(data) {
         )
     )
     
-
+    
     server <- function(input, output, session) {
+        
         # Reactive values to store selected color, point size, and transparency (alpha)
         selected_color <- reactiveVal("#FF5733")
         selected_point_size <- reactiveVal(3)
-        selected_point_alpha <- reactiveVal(1)  # Default alpha value
+        selected_point_alpha <- reactiveVal(0.6)  # Default alpha value
+        
         
         # Reactive values to store saved settings for continuous and discrete distributions
         saved_colors_continuous <- reactiveVal(list())
@@ -384,12 +386,18 @@ run_app <- function(data) {
         saved_point_sizes_discrete <- reactiveVal(list())
         saved_alpha_discrete <- reactiveVal(list())
         
+        saved_line_sizes_continuous <- reactiveVal(list())
+        saved_line_sizes_discrete <- reactiveVal(list())
+        
+        saved_line_alpha_continuous <- reactiveVal(list())
+        saved_line_alpha_discrete <- reactiveVal(list())
+        
         # Reactive expression for handling selected column data
         reactiveData <- reactive({
             req(input$selectedColumn)
             
             selected_data <- data[[input$selectedColumn]]
-
+            
             # Ensure the data is not empty
             if (length(selected_data) == 0) {
                 stop("The selected dataset is empty.")
@@ -398,7 +406,9 @@ run_app <- function(data) {
             if (is.list(data)) {
                 # Check for nested lists of lists (unsupported case)
                 if (any(sapply(data, is.list))) {
-                    stop("Nested lists are not supported. Please provide a flat list or data frame.")
+                    stop(
+                        "Nested lists are not supported. Please provide a flat list or data frame."
+                    )
                 }
             }
             
@@ -414,17 +424,23 @@ run_app <- function(data) {
             
             # Check for missing values
             if (any(is.na(selected_data))) {
-                stop("The dataset contains missing (NA) values. Please clean the data before analysis.")
+                stop(
+                    "The dataset contains missing (NA) values. Please clean the data before analysis."
+                )
             }
             
             # Check for infinite values
             if (any(!is.finite(selected_data))) {
-                stop("The dataset contains infinite values. Please handle them before analysis.")
+                stop(
+                    "The dataset contains infinite values. Please handle them before analysis."
+                )
             }
             
             # Check for identical values (e.g., all values are the same)
             if (all(selected_data == selected_data[1])) {
-                stop("The dataset contains identical values, which may cause problems in statistical analysis.")
+                stop(
+                    "The dataset contains identical values, which may cause problems in statistical analysis."
+                )
             }
             
             
@@ -550,6 +566,20 @@ run_app <- function(data) {
                         selected_point_alpha()
                     )
                 )
+                saved_line_sizes_continuous(
+                    update_saved_line_sizes(
+                        saved_line_sizes_continuous(),
+                        input$distributionSelect,
+                        input$pointSize
+                    )
+                )
+                saved_line_alpha_continuous(
+                    update_saved_alpha(
+                        saved_line_alpha_continuous(),
+                        input$distributionSelect,
+                        input$pointAlpha
+                    )
+                )
             } else {
                 saved_colors_discrete(
                     update_saved_colors(
@@ -572,8 +602,23 @@ run_app <- function(data) {
                         selected_point_alpha()
                     )
                 )
+                saved_line_sizes_discrete(
+                    update_saved_line_sizes(
+                        saved_line_sizes_discrete(),
+                        input$distributionSelect,
+                        input$pointSize
+                    )
+                )
+                saved_line_alpha_discrete(
+                    update_saved_alpha(
+                        saved_line_alpha_discrete(),
+                        input$distributionSelect,
+                        input$pointAlpha
+                    )
+                )
             }
         })
+        
         
         # Helper functions for saving colors, point sizes, and transparency
         update_saved_colors <- function(saved_colors,
@@ -596,6 +641,17 @@ run_app <- function(data) {
             saved_alpha[[dist_name]] <- new_alpha
             return(saved_alpha)
         }
+        
+        update_saved_line_sizes <- function(saved_line_sizes, dist_name, new_line_size) {
+            saved_line_sizes[[dist_name]] <- new_line_size
+            return(saved_line_sizes)
+        }
+        
+        update_saved_alpha <- function(saved_alpha, dist_name, new_alpha) {
+            saved_alpha[[dist_name]] <- new_alpha
+            return(saved_alpha)
+        }
+        
         
         # Colorblind-friendly color selection buttons
         observeEvent(input$color_cud1, {
@@ -741,6 +797,9 @@ run_app <- function(data) {
         bootstrap_data <- reactive({
             req(reactiveData())
             num_samples <- input$numSamples
+            if(num_samples< 10){
+                stop("Bootstrap numsamples must be at least 10")
+            }
             if (input$bootstrapMethod == "Bootstrap Samples") {
                 bootstrap_results <- bootstrap_method(reactiveData(), num_samples, "sample", TRUE)
                 bootstrap_results <- data.frame(
@@ -766,23 +825,31 @@ run_app <- function(data) {
                 saved_size <- saved_point_sizes_continuous()[[input$distributionSelect]] %||% 3
                 saved_alpha <- saved_alpha_continuous()[[input$distributionSelect]] %||% 1
                 saved_color <- saved_colors_continuous()[[input$distributionSelect]] %||% "#E83209"
+                saved_line_size <- saved_line_sizes_continuous()[[input$distributionSelect]] %||% 1
+                saved_line_alpha <- saved_line_alpha_continuous()[[input$distributionSelect]] %||% 0.5
             } else {
                 saved_size <- saved_point_sizes_discrete()[[input$distributionSelect]] %||% 3
                 saved_alpha <- saved_alpha_discrete()[[input$distributionSelect]] %||% 1
                 saved_color <- saved_colors_discrete()[[input$distributionSelect]] %||% "#E83209"
+                saved_line_size <- saved_line_sizes_discrete()[[input$distributionSelect]] %||% 1
+                saved_line_alpha <- saved_line_alpha_discrete()[[input$distributionSelect]] %||% 0.5
             }
             
             updateSliderInput(session, "pointSize", value = saved_size)
             updateSliderInput(session, "pointAlpha", value = saved_alpha)
             updateColourInput(session, "colorPicker", value = saved_color)  # Update color input
+            updateSliderInput(session, "lineSize", value = saved_line_size)  # Nuevo: actualizar tamaño de línea
+            updateSliderInput(session, "lineAlpha", value = saved_line_alpha)  # Nuevo: actualizar transparencia de línea
         })
+        
+        
         
         # Reactive plot generation
         thePlot <- reactive({
             if (!is.null(data_info())) {
                 req(reactiveData())
                 
-                data_filtered <- data_info()$data_filtered
+                polygon_data <- data_info()$polygon_data
                 theoretical_points <- data_info()$theoretical_points
                 
                 if (input$dataType == "continuous") {
@@ -807,7 +874,7 @@ run_app <- function(data) {
                     if (dist == input$distributionSelect) {
                         input$pointAlpha  # Real-time slider value
                     } else {
-                        point_alpha_map[[dist]] %||% 1  # Saved alpha or default
+                        point_alpha_map[[dist]] %||% 0.5  # Saved alpha or default
                     }
                 })
                 
@@ -815,6 +882,18 @@ run_app <- function(data) {
                 if (input$dataType == "continuous") {
                     lognormal_line <- data_info()$lognormal_line
                     gamma_line <- data_info()$gamma_line
+                    
+                    line_size_map <- c(
+                        "Lognormal" = ifelse(input$distributionSelect == "Lognormal", input$pointSize, saved_line_sizes_continuous()[["Lognormal"]] %||% 1),
+                        "Gamma" = ifelse(input$distributionSelect == "Gamma", input$pointSize, saved_line_sizes_continuous()[["Gamma"]] %||% 1),
+                        "Beta Distribution" = ifelse(input$distributionSelect == "Beta Distribution", input$pointSize, saved_line_sizes_continuous()[["Beta Distribution"]] %||% 1)
+                    )
+                    
+                    line_alpha_map <- c(
+                        "Lognormal" = ifelse(input$distributionSelect == "Lognormal", input$pointAlpha, saved_line_alpha_continuous()[["Lognormal"]] %||% 0.5),
+                        "Gamma" = ifelse(input$distributionSelect == "Gamma", input$pointAlpha, saved_line_alpha_continuous()[["Gamma"]] %||% 0.5),
+                        "Beta Distribution" = ifelse(input$distributionSelect == "Beta Distribution", input$pointAlpha, saved_line_alpha_continuous()[["Beta Distribution"]] %||% 0.3)
+                    )
                     
                     color_map <- c(
                         "Beta Distribution" = ifelse(
@@ -871,13 +950,14 @@ run_app <- function(data) {
                     
                     p <- ggplot() +
                         geom_polygon(
-                            data = data_filtered,
+                            data = polygon_data,
                             aes(
                                 x = s2,
                                 y = y,
                                 color = "Beta Distribution"
                             ),
-                            alpha = 0.5
+                            alpha = line_alpha_map[["Beta Distribution"]],
+                            linewidth = line_size_map[["Beta Distribution"]]
                         ) +
                         geom_line(
                             data = lognormal_line,
@@ -887,7 +967,8 @@ run_app <- function(data) {
                                 color = "Lognormal",
                                 linetype = "Lognormal"
                             ),
-                            linewidth = 1
+                            linewidth = line_size_map[["Lognormal"]],  
+                            alpha = line_alpha_map[["Lognormal"]]  
                         ) +
                         geom_line(
                             data = gamma_line,
@@ -897,8 +978,9 @@ run_app <- function(data) {
                                 color = "Gamma",
                                 linetype = "Gamma"
                             ),
-                            linewidth = 1
-                        ) +
+                            linewidth = line_size_map[["Gamma"]],  
+                            alpha = line_alpha_map[["Gamma"]]  
+                        )  +
                         scale_shape_manual(
                             values = c(
                                 "Observed" = 1,
@@ -920,48 +1002,63 @@ run_app <- function(data) {
                     # Discrete distribution plot
                     poisson_line <- data_info()$poisson_line
                     
+                    # Mapa de tamaños de línea
+                    line_size_map <- c(
+                        "Poisson" = ifelse(input$distributionSelect == "Poisson", input$pointSize, saved_line_sizes_discrete()[["Poisson"]] %||% 1),
+                        "NegBin" = ifelse(input$distributionSelect == "NegBin", input$pointSize, saved_line_sizes_discrete()[["NegBin"]] %||% 1)
+                    )
+                    
+                    # Mapa de transparencia (alpha)
+                    line_alpha_map <- c(
+                        "Poisson" = ifelse(input$distributionSelect == "Poisson", input$pointAlpha, saved_line_alpha_discrete()[["Poisson"]] %||% 1),
+                        "NegBin" = ifelse(input$distributionSelect == "NegBin", input$pointAlpha, 0.3)  # Valor predeterminado 0.3
+                    )
+                    
+                    # Mapa de colores
                     color_map <- c(
                         "NegBin" = ifelse(
                             input$distributionSelect == "NegBin",
                             selected_color(),
-                            color_map[["NegBin"]] %||% "lightgrey"
+                            saved_colors_discrete()[["NegBin"]] %||% "lightgrey"
                         ),
                         "Observed" = ifelse(
                             input$distributionSelect == "Observed",
                             selected_color(),
-                            color_map[["Observed"]] %||% "blue"
+                            saved_colors_discrete()[["Observed"]] %||% "blue"
                         ),
                         "Normal" = ifelse(
                             input$distributionSelect == "Normal",
                             selected_color(),
-                            color_map[["Normal"]] %||% "pink"
+                            saved_colors_discrete()[["Normal"]] %||% "pink"
                         ),
                         "Poisson" = ifelse(
                             input$distributionSelect == "Poisson",
                             selected_color(),
-                            color_map[["Poisson"]] %||% "black"
+                            saved_colors_discrete()[["Poisson"]] %||% "black"
                         ),
                         "Bootstrap Samples" = ifelse(
                             input$distributionSelect == "Bootstrap Samples",
                             selected_color(),
-                            color_map[["Bootstrap Samples"]] %||% "magenta"
+                            saved_colors_discrete()[["Bootstrap Samples"]] %||% "magenta"
                         ),
                         "Bootstrap Unbiased" = ifelse(
                             input$distributionSelect == "Bootstrap Unbiased",
                             selected_color(),
-                            color_map[["Bootstrap Unbiased"]] %||% "lightblue"
+                            saved_colors_discrete()[["Bootstrap Unbiased"]] %||% "lightblue"
                         )
                     )
                     
+                    # Crear el gráfico
                     p <- ggplot() +
                         geom_polygon(
-                            data = data_filtered,
+                            data = polygon_data,
                             aes(
                                 x = s2,
                                 y = y,
                                 color = "NegBin"
                             ),
-                            alpha = 0.5
+                            size = line_size_map[["NegBin"]],  # Tamaño de línea
+                            alpha = line_alpha_map[["NegBin"]]  # Alpha predeterminado a 0.3
                         ) +
                         geom_line(
                             data = poisson_line,
@@ -971,7 +1068,8 @@ run_app <- function(data) {
                                 color = "Poisson",
                                 linetype = "Poisson"
                             ),
-                            size = 1
+                            size = line_size_map[["Poisson"]],  # Tamaño de línea
+                            alpha = line_alpha_map[["Poisson"]]  # Transparencia (alpha)
                         ) +
                         scale_shape_manual(values = c(
                             "Observed" = 1,
@@ -982,6 +1080,7 @@ run_app <- function(data) {
                              y = "Kurtosis",
                              title = "Cullen and Frey Graph") +
                         theme_minimal(base_size = input$fontSize)
+                    
                 }
                 
                 # Add bootstrap data if available
@@ -994,7 +1093,8 @@ run_app <- function(data) {
                             color = input$bootstrapMethod
                         ),
                         size = 2,
-                        alpha = 0.6
+                        alpha = 0.4,
+                        shape = 1
                     )
                 }
                 
@@ -1012,7 +1112,9 @@ run_app <- function(data) {
                 ) +
                     scale_size_identity() +
                     scale_alpha_identity() +
-                    scale_y_reverse(limits = c(10, 0)) +scale_x_continuous(limits = c(0,6))+
+                    coord_cartesian(xlim = c(0, 4), ylim = c(10,0)) +
+                    scale_x_continuous(breaks = seq(0, 4, 1)) + 
+                    scale_y_continuous(breaks = seq(10, 0, -1))+
                     scale_color_manual(values = color_map) +
                     theme(
                         plot.title = element_text(
@@ -1024,7 +1126,7 @@ run_app <- function(data) {
                         panel.border = element_rect(
                             color = "black",
                             fill = NA,
-                            size = 1
+                            linewidth  = 1
                         ),
                         axis.line = element_line(color = "black"),
                         text = element_text(family = input$fontFamily),
@@ -1062,6 +1164,9 @@ run_app <- function(data) {
                 return(p_plotly)
             }
         })
+        
+        
+        
         
         # Render the updated plot
         output$distPlot <- renderPlotly({
