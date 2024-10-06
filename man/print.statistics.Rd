@@ -15,7 +15,7 @@
 This function prints the statistics but does not return a value.
 }
 \description{
-This function prints the calculated statistics (minimum, maximum, median, skewness squared, and kurtosis) for a numeric dataset.
+This function prints the calculated statistics (minimum, maximum, mean, variance, standard deviation, skewness, and kurtosis) for a numeric dataset.
 }
 \examples{
 data <- c(1, 2, 3, 4, 5)

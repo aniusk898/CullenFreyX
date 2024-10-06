@@ -14,13 +14,17 @@ A list with the following components:
 \describe{
 \item{min}{The minimum value of the data.}
 \item{max}{The maximum value of the data.}
+\item{mean}{The mean (average) of the data.}
+\item{variance}{The variance (second data_moment) of the data.}
+\item{sd}{The standard deviation of the data.}
 \item{median}{The median of the data.}
-\item{skewness_squared}{The square of the skewness of the data.}
+\item{skewness}{The skewness of the data.}
+\item{skewness_squared}{The square of the skewness.}
 \item{kurtosis}{The kurtosis (excess kurtosis) of the data.}
 }
 }
 \description{
-This function calculates key statistics such as skewness, kurtosis, minimum, maximum, and median for a numeric dataset.
+This function calculates key statistics such as skewness, kurtosis, minimum, maximum, mean, variance, and standard deviation for a numeric dataset.
 The skewness and kurtosis are computed using standard formulas, with kurtosis representing the Fisher kurtosis (excess kurtosis).
 }
 \examples{

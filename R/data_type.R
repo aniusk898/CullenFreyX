@@ -1,22 +1,20 @@
 #' Generic Function for Data Type Processing
 #'
 #' @param data A numeric vector or list of numeric vectors representing the dataset to process.
-#' @param ... Additional parameters.
 #'
 #' @return A list containing the filtered data, theoretical points, and distribution lines for plotting.
 #' @export
-data_type <- function(data, ...) {
+data_type <- function(data) {
   UseMethod("data_type")
 }
 
 #' Method for Continuous Data
 #'
 #' @param data A numeric vector containing the continuous dataset to process.
-#' @param ... Additional parameters.
 #'
 #' @return A list of filtered data, theoretical points, and distribution lines.
 #' @export
-data_type.continuous <- function(data, ...) {
+data_type.continuous <- function(data) {
   # Calculate basic statistics for the data (min, max, skewness, kurtosis, etc.)
   stats_test <- calculate_statistics(data)
 
@@ -75,11 +73,10 @@ data_type.continuous <- function(data, ...) {
 #' Method for Discrete Data
 #'
 #' @param data A numeric vector containing the discrete dataset to process.
-#' @param ... Additional parameters.
 #'
 #' @return A list of filtered data, theoretical points, and distribution lines.
 #' @export
-data_type.discrete <- function(data, ...) {
+data_type.discrete <- function(data) {
   # Calculate basic statistics for the discrete data (min, max, skewness, kurtosis, etc.)
   stats_test <- calculate_statistics(data)
 
@@ -99,7 +96,7 @@ data_type.discrete <- function(data, ...) {
   # Generate data for the Negative Binomial (NegBin) distribution
   lr <- seq(-100, 100, 0.1)
   s2a <- (2 - exp(-10))^2 / (exp(lr) * (1 - exp(-10)))
-  ya <- (3 + 6 / exp(lr) + exp(-10)^2 / (exp(lr) * (1 - exp(-10))))
+  ya <-(ymax-1)- (3 + 6 / exp(lr) + exp(-10)^2 / (exp(lr) * (1 - exp(-10))))
 
   lr <- seq(100, -100, -0.1)
   s2b <- (2 - (1 - exp(-10)))^2 / (exp(lr) * (1 - (1 - exp(-10))))
@@ -127,4 +124,5 @@ data_type.discrete <- function(data, ...) {
     )
   )
 }
+
 

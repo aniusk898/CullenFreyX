@@ -9,7 +9,9 @@ utils::globalVariables(
     "y",
     "theoretical_points",
     "lognormal_line",
-    "gamma_line"
+    "gamma_line",
+    "xmax",
+    "ymax"
   )
 )
 #' Run the Cullen-Frey Interactive Graph Application
@@ -25,7 +27,7 @@ launch_cullen_frey_app <- function(data) {
     if (!is.vector(data) && !is.list(data) && !is.data.frame(data)) {
         stop("Input must be a list, vector, or dataframe.")
     }
-    
+
     process_input_data <- function(data) {
         # Check if the data is a vector (but not a list)
         if (is.vector(data) && !is.list(data)) {
@@ -33,27 +35,28 @@ launch_cullen_frey_app <- function(data) {
             data <- list(data)
             names(data) <- "dataset1"
         }
-        
+
         # Check if data is a list
         if (is.list(data)) {
             # If names are null, initialize with empty names
             if (is.null(names(data))) {
                 names(data) <- rep("", length(data))
             }
-            
+
             # Identify unnamed elements
             unnamed_elements <- names(data) == ""
-            
+
             # Assign names "dataset1", "dataset2", etc., to unnamed elements
             names(data)[unnamed_elements] <- paste0("dataset", seq_along(data)[unnamed_elements])
         }
-        
+
         # Return processed data
         return(data)
     }
-    
+
     # Process the input data
     processed_data <- process_input_data(data)
     # Call the existing app function with the processed data
     run_app(processed_data)
 }
+

@@ -26,11 +26,11 @@ run_app <- function(data) {
         titlePanel("Interactive Cullen-Frey Graph"),
         uiOutput("dynamicStyle"),
         # Dynamic style adjustments for the app
-        
+
         # Main input section
         div(
             style = "border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 10px; background-color: #f9f9f9; width: 100%;",
-            
+
             # Custom CSS for tooltips and slider styles
             tags$head(tags$style(
                 HTML(
@@ -80,7 +80,7 @@ run_app <- function(data) {
             "
                 )
             )),
-            
+
             # Row for dataset column selection, data type, bootstrap method, and download buttons
             fluidRow(
                 column(
@@ -136,7 +136,7 @@ run_app <- function(data) {
                 )
             )
         ),
-        
+
         # Sidebar layout
         sidebarLayout(
             sidebarPanel(
@@ -179,7 +179,7 @@ run_app <- function(data) {
                         selected = "All"
                     )
                 ),
-                
+
                 # Font family selection
                 selectInput(
                     "fontFamily",
@@ -203,26 +203,26 @@ run_app <- function(data) {
                     ),
                     selected = "Arial"
                 ),
-                
+
                 # Comment input box
                 textInput("tooltipText", "Insert a comment:", " "),
-                
+
                 # Save and clear buttons for comments
                 fluidRow(column(6, actionButton(
                     "saveBtn", "Submit"
                 )), column(6, actionButton(
                     "clearBtn", "Clear"
                 ))),
-                
+
                 br(),
-                
+
                 # Color picker and colorblind-friendly palette
                 colourInput(
                     "colorPicker",
                     "Choose Distribution Color:",
                     value = "darkgreen"
                 ),
-                
+
                 tags$div(
                     style = "border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;",
                     h4("Colorblind Friendly Palette"),
@@ -255,9 +255,9 @@ run_app <- function(data) {
                         )
                     ))
                 ),
-                
-                
-                
+
+
+
                 # Sliders for point size, transparency, and font size
                 div(
                     class = "slider-label",
@@ -325,7 +325,7 @@ run_app <- function(data) {
                         )
                     )
                 ),
-                
+
                 # Text size slider for the app
                 div(
                     class = "slider-label",
@@ -348,8 +348,8 @@ run_app <- function(data) {
                 # Save color button
                 actionButton("saveColorBtn", "Save Changes"),
             ),
-            
-            
+
+
             # Main panel for plot output and statistics/comments sections
             mainPanel(
                 div(
@@ -367,42 +367,42 @@ run_app <- function(data) {
             )
         )
     )
-    
-    
+
+
     server <- function(input, output, session) {
-        
+
         # Reactive values to store selected color, point size, and transparency (alpha)
         selected_color <- reactiveVal("#FF5733")
         selected_point_size <- reactiveVal(3)
         selected_point_alpha <- reactiveVal(0.6)  # Default alpha value
-        
-        
+
+
         # Reactive values to store saved settings for continuous and discrete distributions
         saved_colors_continuous <- reactiveVal(list())
         saved_point_sizes_continuous <- reactiveVal(list())
         saved_alpha_continuous <- reactiveVal(list())
-        
+
         saved_colors_discrete <- reactiveVal(list())
         saved_point_sizes_discrete <- reactiveVal(list())
         saved_alpha_discrete <- reactiveVal(list())
-        
+
         saved_line_sizes_continuous <- reactiveVal(list())
         saved_line_sizes_discrete <- reactiveVal(list())
-        
+
         saved_line_alpha_continuous <- reactiveVal(list())
         saved_line_alpha_discrete <- reactiveVal(list())
-        
+
         # Reactive expression for handling selected column data
         reactiveData <- reactive({
             req(input$selectedColumn)
-            
+
             selected_data <- data[[input$selectedColumn]]
-            
+
             # Ensure the data is not empty
             if (length(selected_data) == 0) {
                 stop("The selected dataset is empty.")
             }
-            
+
             if (is.list(data)) {
                 # Check for nested lists of lists (unsupported case)
                 if (any(sapply(data, is.list))) {
@@ -411,43 +411,43 @@ run_app <- function(data) {
                     )
                 }
             }
-            
+
             # Ensure the data has at least 4 observations
             if (length(selected_data) < 4) {
                 stop("The dataset must contain at least 4 data points for analysis.")
             }
-            
+
             # Ensure the data is numeric
             if (!is.numeric(selected_data)) {
                 stop("The data must be numeric.")
             }
-            
+
             # Check for missing values
             if (any(is.na(selected_data))) {
                 stop(
                     "The dataset contains missing (NA) values. Please clean the data before analysis."
                 )
             }
-            
+
             # Check for infinite values
             if (any(!is.finite(selected_data))) {
                 stop(
                     "The dataset contains infinite values. Please handle them before analysis."
                 )
             }
-            
+
             # Check for identical values (e.g., all values are the same)
             if (all(selected_data == selected_data[1])) {
                 stop(
                     "The dataset contains identical values, which may cause problems in statistical analysis."
                 )
             }
-            
-            
+
+
             # Return the validated data
             selected_data
         })
-        
+
         # Dynamic styling based on user-selected text size
         output$dynamicStyle <- renderUI({
             sizeMapping <- list(
@@ -467,9 +467,9 @@ run_app <- function(data) {
                     commentText = "20px"
                 )
             )
-            
+
             selectedSize <- sizeMapping[[input$textSizeSlider]]  # Get selected size
-            
+
             tags$style(HTML(
                 sprintf(
                     "
@@ -495,14 +495,14 @@ run_app <- function(data) {
                 )
             ))
         })
-        
+
         # Reactive value to store selected data type information
         data_info <- reactiveVal()
-        
+
         # Observe event when selected column changes and automatically detect data type
         observeEvent(input$selectedColumn, {
             req(reactiveData())
-            
+
             if (is.numeric(reactiveData())) {
                 updateRadioButtons(session, "dataType", selected = "continuous")
                 data_info(data_type.continuous(reactiveData()))
@@ -511,7 +511,7 @@ run_app <- function(data) {
                 data_info(data_type.discrete(reactiveData()))
             }
         })
-        
+
         # Update data type manually
         observeEvent(input$dataType, {
             req(reactiveData())
@@ -521,27 +521,27 @@ run_app <- function(data) {
                 data_info(data_type.discrete(reactiveData()))
             }
         })
-        
+
         # Tooltip handling
         tooltip_texts <- reactiveVal(list())
-        
+
         # Toggle visibility for comments and statistics panels
         commentsVisible <- reactiveVal(FALSE)
         statisticsVisible <- reactiveVal(FALSE)
-        
+
         # Update selected color, point size, and alpha on change
         observeEvent(input$colorPicker, {
             selected_color(input$colorPicker)
         })
-        
+
         observeEvent(input$pointSize, {
             selected_point_size(input$pointSize)
         })
-        
+
         observeEvent(input$pointAlpha, {
             selected_point_alpha(input$pointAlpha)
         })
-        
+
         # Save settings (color, point size, transparency) for the selected distribution
         observeEvent(input$saveColorBtn, {
             if (input$dataType == "continuous") {
@@ -618,8 +618,8 @@ run_app <- function(data) {
                 )
             }
         })
-        
-        
+
+
         # Helper functions for saving colors, point sizes, and transparency
         update_saved_colors <- function(saved_colors,
                                         dist_name,
@@ -627,32 +627,32 @@ run_app <- function(data) {
             saved_colors[[dist_name]] <- new_color
             return(saved_colors)
         }
-        
+
         update_saved_point_sizes <- function(saved_point_sizes,
                                              dist_name,
                                              new_point_size) {
             saved_point_sizes[[dist_name]] <- new_point_size
             return(saved_point_sizes)
         }
-        
+
         update_saved_alpha <- function(saved_alpha,
                                        dist_name,
                                        new_alpha) {
             saved_alpha[[dist_name]] <- new_alpha
             return(saved_alpha)
         }
-        
+
         update_saved_line_sizes <- function(saved_line_sizes, dist_name, new_line_size) {
             saved_line_sizes[[dist_name]] <- new_line_size
             return(saved_line_sizes)
         }
-        
+
         update_saved_alpha <- function(saved_alpha, dist_name, new_alpha) {
             saved_alpha[[dist_name]] <- new_alpha
             return(saved_alpha)
         }
-        
-        
+
+
         # Colorblind-friendly color selection buttons
         observeEvent(input$color_cud1, {
             selected_color("#D55E00")
@@ -702,18 +702,18 @@ run_app <- function(data) {
         observeEvent(input$color_cud16, {
             selected_color("#FF69B4")
         })
-        
+
         # Save and manage custom tooltips
         observeEvent(input$saveBtn, {
             current_tooltips <- tooltip_texts()
             current_tooltips[[input$distributionSelect]] <- c(current_tooltips[[input$distributionSelect]], input$tooltipText)
             tooltip_texts(current_tooltips)
         })
-        
+
         observeEvent(input$clearBtn, {
             updateTextInput(session, "tooltipText", value = "")
         })
-        
+
         observeEvent(input$toggleComments, {
             if (commentsVisible()) {
                 commentsVisible(FALSE)
@@ -723,7 +723,7 @@ run_app <- function(data) {
                 updateActionButton(session, "toggleComments", label = "- Hide Comments")
             }
         })
-        
+
         comments_generator <- function(all_comments) {
             comment_list <- list()
             for (dist in names(all_comments)) {
@@ -735,7 +735,7 @@ run_app <- function(data) {
             }
             return(comment_list)
         }
-        
+
         output$commentsPanel <- renderUI({
             req(reactiveData())
             if (commentsVisible()) {
@@ -750,7 +750,7 @@ run_app <- function(data) {
                 NULL
             }
         })
-        
+
         observeEvent(input$toggleStatistics, {
             statisticsVisible(!statisticsVisible())
             updateActionButton(
@@ -763,7 +763,7 @@ run_app <- function(data) {
                 )
             )
         })
-        
+
         output$statisticsPanel <- renderUI({
             req(reactiveData())
             if (statisticsVisible()) {
@@ -792,7 +792,7 @@ run_app <- function(data) {
                 NULL
             }
         })
-        
+
         # Handle bootstrap data based on selected samples
         bootstrap_data <- reactive({
             req(reactiveData())
@@ -818,7 +818,7 @@ run_app <- function(data) {
                 return(NULL)
             }
         })
-        
+
         # Restore saved settings (color, size, alpha) for the selected distribution
         observeEvent(input$distributionSelect, {
             if (input$dataType == "continuous") {
@@ -834,24 +834,24 @@ run_app <- function(data) {
                 saved_line_size <- saved_line_sizes_discrete()[[input$distributionSelect]] %||% 1
                 saved_line_alpha <- saved_line_alpha_discrete()[[input$distributionSelect]] %||% 0.5
             }
-            
+
             updateSliderInput(session, "pointSize", value = saved_size)
             updateSliderInput(session, "pointAlpha", value = saved_alpha)
             updateColourInput(session, "colorPicker", value = saved_color)  # Update color input
             updateSliderInput(session, "lineSize", value = saved_line_size)  # Nuevo: actualizar tamaño de línea
             updateSliderInput(session, "lineAlpha", value = saved_line_alpha)  # Nuevo: actualizar transparencia de línea
         })
-        
-        
-        
+
+
+
         # Reactive plot generation
         thePlot <- reactive({
             if (!is.null(data_info())) {
                 req(reactiveData())
-                
+
                 polygon_data <- data_info()$polygon_data
                 theoretical_points <- data_info()$theoretical_points
-                
+
                 if (input$dataType == "continuous") {
                     color_map <- saved_colors_continuous()
                     point_size_map <- saved_point_sizes_continuous()
@@ -861,7 +861,7 @@ run_app <- function(data) {
                     point_size_map <- saved_point_sizes_discrete()
                     point_alpha_map <- saved_alpha_discrete()
                 }
-                
+
                 size_map <- sapply(theoretical_points$label, function(dist) {
                     if (dist == input$distributionSelect) {
                         input$pointSize  # Real-time slider value
@@ -869,7 +869,7 @@ run_app <- function(data) {
                         point_size_map[[dist]] %||% 3  # Saved size or default
                     }
                 })
-                
+
                 alpha_map <- sapply(theoretical_points$label, function(dist) {
                     if (dist == input$distributionSelect) {
                         input$pointAlpha  # Real-time slider value
@@ -877,24 +877,24 @@ run_app <- function(data) {
                         point_alpha_map[[dist]] %||% 0.5  # Saved alpha or default
                     }
                 })
-                
+
                 # Continuous distribution plot
                 if (input$dataType == "continuous") {
                     lognormal_line <- data_info()$lognormal_line
                     gamma_line <- data_info()$gamma_line
-                    
+
                     line_size_map <- c(
                         "Lognormal" = ifelse(input$distributionSelect == "Lognormal", input$pointSize, saved_line_sizes_continuous()[["Lognormal"]] %||% 1),
                         "Gamma" = ifelse(input$distributionSelect == "Gamma", input$pointSize, saved_line_sizes_continuous()[["Gamma"]] %||% 1),
                         "Beta Distribution" = ifelse(input$distributionSelect == "Beta Distribution", input$pointSize, saved_line_sizes_continuous()[["Beta Distribution"]] %||% 1)
                     )
-                    
+
                     line_alpha_map <- c(
                         "Lognormal" = ifelse(input$distributionSelect == "Lognormal", input$pointAlpha, saved_line_alpha_continuous()[["Lognormal"]] %||% 0.5),
                         "Gamma" = ifelse(input$distributionSelect == "Gamma", input$pointAlpha, saved_line_alpha_continuous()[["Gamma"]] %||% 0.5),
                         "Beta Distribution" = ifelse(input$distributionSelect == "Beta Distribution", input$pointAlpha, saved_line_alpha_continuous()[["Beta Distribution"]] %||% 0.3)
                     )
-                    
+
                     color_map <- c(
                         "Beta Distribution" = ifelse(
                             input$distributionSelect == "Beta Distribution",
@@ -947,7 +947,7 @@ run_app <- function(data) {
                             color_map[["Bootstrap Unbiased"]] %||% "lightblue"
                         )
                     )
-                    
+
                     p <- ggplot() +
                         geom_polygon(
                             data = polygon_data,
@@ -967,8 +967,8 @@ run_app <- function(data) {
                                 color = "Lognormal",
                                 linetype = "Lognormal"
                             ),
-                            linewidth = line_size_map[["Lognormal"]],  
-                            alpha = line_alpha_map[["Lognormal"]]  
+                            linewidth = line_size_map[["Lognormal"]],
+                            alpha = line_alpha_map[["Lognormal"]]
                         ) +
                         geom_line(
                             data = gamma_line,
@@ -978,8 +978,8 @@ run_app <- function(data) {
                                 color = "Gamma",
                                 linetype = "Gamma"
                             ),
-                            linewidth = line_size_map[["Gamma"]],  
-                            alpha = line_alpha_map[["Gamma"]]  
+                            linewidth = line_size_map[["Gamma"]],
+                            alpha = line_alpha_map[["Gamma"]]
                         )  +
                         scale_shape_manual(
                             values = c(
@@ -1001,19 +1001,19 @@ run_app <- function(data) {
                 } else {
                     # Discrete distribution plot
                     poisson_line <- data_info()$poisson_line
-                    
+
                     # Mapa de tamaños de línea
                     line_size_map <- c(
                         "Poisson" = ifelse(input$distributionSelect == "Poisson", input$pointSize, saved_line_sizes_discrete()[["Poisson"]] %||% 1),
                         "NegBin" = ifelse(input$distributionSelect == "NegBin", input$pointSize, saved_line_sizes_discrete()[["NegBin"]] %||% 1)
                     )
-                    
+
                     # Mapa de transparencia (alpha)
                     line_alpha_map <- c(
                         "Poisson" = ifelse(input$distributionSelect == "Poisson", input$pointAlpha, saved_line_alpha_discrete()[["Poisson"]] %||% 1),
                         "NegBin" = ifelse(input$distributionSelect == "NegBin", input$pointAlpha, 0.3)  # Valor predeterminado 0.3
                     )
-                    
+
                     # Mapa de colores
                     color_map <- c(
                         "NegBin" = ifelse(
@@ -1047,7 +1047,7 @@ run_app <- function(data) {
                             saved_colors_discrete()[["Bootstrap Unbiased"]] %||% "lightblue"
                         )
                     )
-                    
+
                     # Crear el gráfico
                     p <- ggplot() +
                         geom_polygon(
@@ -1080,9 +1080,9 @@ run_app <- function(data) {
                              y = "Kurtosis",
                              title = "Cullen and Frey Graph") +
                         theme_minimal(base_size = input$fontSize)
-                    
+
                 }
-                
+
                 # Add bootstrap data if available
                 if (!is.null(bootstrap_data())) {
                     p <- p + geom_point(
@@ -1097,7 +1097,7 @@ run_app <- function(data) {
                         shape = 1
                     )
                 }
-                
+
                 # Add theoretical points with the correct size and alpha
                 p <- p + geom_point(
                     data = theoretical_points,
@@ -1112,9 +1112,9 @@ run_app <- function(data) {
                 ) +
                     scale_size_identity() +
                     scale_alpha_identity() +
-                    coord_cartesian(xlim = c(0, 4), ylim = c(10,0)) +
-                    scale_x_continuous(breaks = seq(0, 4, 1)) + 
-                    scale_y_continuous(breaks = seq(10, 0, -1))+
+                    coord_cartesian(xlim = c(0, xmax), ylim = c(ymax,0)) +
+                    scale_x_continuous(breaks = seq(0, xmax, 1)) +
+                    scale_y_continuous(breaks = seq(ymax, 0, -1))+
                     scale_color_manual(values = color_map) +
                     theme(
                         plot.title = element_text(
@@ -1138,10 +1138,10 @@ run_app <- function(data) {
                         shape = "none",
                         linetype = "none"
                     )
-                
+
                 # Convert to Plotly for interactivity
                 p_plotly <- ggplotly(p, tooltip = c("x", "y", "color"))
-                
+
                 # Add saved comments as tooltips
                 for (i in seq_along(p_plotly$x$data)) {
                     dist_name <- p_plotly$x$data[[i]]$name
@@ -1160,21 +1160,21 @@ run_app <- function(data) {
                         p_plotly$x$data[[i]]$hoverinfo <- "text"
                     }
                 }
-                
+
                 return(p_plotly)
             }
         })
-        
-        
-        
-        
+
+
+
+
         # Render the updated plot
         output$distPlot <- renderPlotly({
             thePlot()  # Ensure updated plot is rendered
         })
-        
-        
-        
+
+
+
         output$downloadPNG <- downloadHandler(
             filename = function() {
                 # Generate filename based on the current date
@@ -1184,12 +1184,12 @@ run_app <- function(data) {
                 # Step 1: Save the current plot as an HTML file temporarily
                 tempFile <- tempfile(fileext = ".html")
                 saveWidget(thePlot(), tempFile)
-                
+
                 # Step 2: Use webshot2 to capture a screenshot of the plot as a PNG
                 webshot(tempFile, file = file, selector = ".plotly")
             }
         )
-        
+
         # Download PDF report handler
         output$downloadReport <- downloadHandler(
             filename = function() {
@@ -1199,38 +1199,38 @@ run_app <- function(data) {
             content = function(file) {
                 # Step 1: Create a temporary file to store the plot image (PNG)
                 tempPlotFile <- tempfile(fileext = ".png")
-                
+
                 # Step 2: Save the Plotly plot as an HTML file temporarily
                 tempHtmlFile <- tempfile(fileext = ".html")
                 saveWidget(thePlot(), tempHtmlFile)
-                
+
                 # Step 3: Capture the plot as a PNG using webshot
                 webshot(tempHtmlFile,
                         file = tempPlotFile,
                         selector = ".plotly")
-                
+
                 # Step 4: Copy the PNG to the current working directory
                 plotFile <- file.path(getwd(), "grafico.png")
                 file.copy(tempPlotFile, plotFile, overwrite = TRUE)
-                
+
                 # Step 5: Create a temporary RMarkdown file for the report
                 tempReport <- tempfile(fileext = ".Rmd")
-                
+
                 # Step 6: Gather all the saved comments
                 all_comments <- tooltip_texts()
                 comment_list <- comments_generator(all_comments)
-                
+
                 # Step 7: Combine the comments into a single string for the report
                 comment_section <- if (length(comment_list) == 0) {
                     "No comments available."
                 } else {
                     paste(comment_list, collapse = "\n\n")
                 }
-                
+
                 # Step 8: Capture the selected data and column name
                 selected_data <- reactiveData()  # Store selected reactive data
                 dataset_name <- input$selectedColumn  # Store selected dataset name
-                
+
                 # Step 9: Define the content for the RMarkdown report
                 reportContent <- c(
                     "---",
@@ -1266,20 +1266,21 @@ run_app <- function(data) {
                     # Calculate statistics on the data
                     "```"
                 )
-                
+
                 # Step 10: Save the content into the temporary RMarkdown file
                 writeLines(reportContent, tempReport)
-                
+
                 # Step 11: Render the RMarkdown file to a PDF document
                 rmarkdown::render(tempReport,
                                   output_file = file,
                                   output_format = "pdf_document")
             }
         )
-        
-        
+
+
     }
-    
+
     shinyApp(ui = ui, server = server)
 }
+
 

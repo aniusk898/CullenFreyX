@@ -10,10 +10,10 @@ calculate_statistics(data)
 \item{data}{A numeric vector representing the dataset.}
 }
 \value{
-A list containing calculated statistics such as minimum, maximum, median, skewness, and kurtosis.
+A list containing calculated statistics such as minimum, maximum, mean, variance, standard deviation, skewness, and kurtosis.
 }
 \description{
-This function is a generic method to calculate various statistics such as skewness, kurtosis, median, and range for a given numeric dataset.
+This function is a generic method to calculate various statistics such as mean, variance, skewness, kurtosis, and range for a given numeric dataset.
 }
 \details{
 The function dispatches based on the class of the input data and calculates statistics accordingly.

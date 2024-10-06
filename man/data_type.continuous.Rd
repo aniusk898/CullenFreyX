@@ -4,12 +4,10 @@
 \alias{data_type.continuous}
 \title{Method for Continuous Data}
 \usage{
-\method{data_type}{continuous}(data, ...)
+\method{data_type}{continuous}(data)
 }
 \arguments{
 \item{data}{A numeric vector containing the continuous dataset to process.}
-
-\item{...}{Additional parameters.}
 }
 \value{
 A list of filtered data, theoretical points, and distribution lines.
