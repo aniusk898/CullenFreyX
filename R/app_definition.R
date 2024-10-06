@@ -5,7 +5,7 @@
 #' @import ggplot2
 #' @importFrom plotly ggplotly renderPlotly plotlyOutput
 #' @importFrom colourpicker colourInput updateColourInput
-#' @importFrom stats_test median
+#' @importFrom stats median
 #' @importFrom utils data
 #' @importFrom Rcpp evalCpp
 #' @useDynLib CullenFreyX, .registration = TRUE
@@ -1289,5 +1289,4 @@ run_app <- function(data) {
 }
 
 
-data = rnorm(100) #Generate a dataset to test the app
-launch_cullen_frey_app(data) # Launch the app
+
