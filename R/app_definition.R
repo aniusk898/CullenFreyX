@@ -848,6 +848,8 @@ run_app <- function(data) {
         thePlot <- reactive({
             if (!is.null(data_info())) {
                 req(reactiveData())
+              xmax <- max(4, ceiling(stats$skewness_squared))
+              ymax <- max(10, ceiling(stats$kurtosis))
 
                 polygon_data <- data_info()$polygon_data
                 theoretical_points <- data_info()$theoretical_points

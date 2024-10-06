@@ -131,5 +131,12 @@ data7 <- data.frame()
 
 ```
 
+# Cullen and Frey Plot
+The Cullen-Frey plot is a visual tool based on concepts and techniques developed by Cullen and Frey in their 1999 work \citep{CullenFrey1999}. This plot is used in statistical analysis to identify the appropriate distribution of a dataset by comparing its measurements (skewness and kurtosis) with the known characteristics of theoretical distributions. Skewness measures the symmetry of the distribution: positive skewness indicates that the right tail is heavier than the left tail, while negative skewness indicates the opposite. Kurtosis measures the ``sharpness" of the distribution: high kurtosis indicates heavier tails and higher peaks, while low kurtosis indicates a flatter distribution with lighter tails.
 
+## Objectives
+The primary objective is to develop an R package that creates an interactive, customizable, and exportable Cullen-Frey plot. 
+
+## User expectations
+The idea is that the proposed package will provide efficient and user-friendly implementations on Cullen-Frey plot allowing import multiple samples, export and customize the plot, and also explore relevant information with a simple click.
 
