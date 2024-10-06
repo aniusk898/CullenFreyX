@@ -4,21 +4,43 @@
 \alias{calculate_statistics}
 \title{Calculate Statistics for a Given Dataset}
 \usage{
-calculate_statistics(data)
+calculate_statistics(data, method = "unbiased")
+
+calculate_statistics(data, method = "unbiased")
 }
 \arguments{
-\item{data}{A numeric vector representing the dataset.}
+\item{data}{A numeric vector for which the statistics will be calculated. Must contain at least 4 data points.}
+
+\item{method}{A string indicating whether to use "sample" or "unbiased" method for calculating statistics.}
 }
 \value{
 A list containing calculated statistics such as minimum, maximum, mean, variance, standard deviation, skewness, and kurtosis.
+
+A list with the following components:
+\describe{
+\item{min}{The minimum value of the data.}
+\item{max}{The maximum value of the data.}
+\item{mean}{The mean (average) of the data.}
+\item{variance}{The variance (second data_moment) of the data.}
+\item{sd}{The standard deviation of the data.}
+\item{median}{The median of the data.}
+\item{skewness}{The skewness of the data.}
+\item{skewness_squared}{The square of the skewness.}
+\item{kurtosis}{The kurtosis (excess kurtosis) of the data.}
+}
 }
 \description{
 This function is a generic method to calculate various statistics such as mean, variance, skewness, kurtosis, and range for a given numeric dataset.
+
+This function calculates key statistics such as skewness, kurtosis, minimum, maximum, mean, variance, and standard deviation for a numeric dataset.
+The skewness and kurtosis are computed using standard formulas, with kurtosis representing the Fisher kurtosis (excess kurtosis).
 }
 \details{
 The function dispatches based on the class of the input data and calculates statistics accordingly.
 }
 \examples{
 data <- c(1, 2, 3, 4, 5)
+calculate_statistics(data)
+data <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 calculate_statistics(data)
 }

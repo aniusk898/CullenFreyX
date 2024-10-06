@@ -23,6 +23,7 @@ data_moment <- function(data, k) {
 #' The function dispatches based on the class of the input data and calculates statistics accordingly.
 #'
 #' @param data A numeric vector representing the dataset.
+#' @param method A string indicating whether to use "sample" or "unbiased" method for calculating statistics.
 #'
 #' @return A list containing calculated statistics such as minimum, maximum, mean, variance, standard deviation, skewness, and kurtosis.
 #' @export
@@ -30,7 +31,7 @@ data_moment <- function(data, k) {
 #' @examples
 #' data <- c(1, 2, 3, 4, 5)
 #' calculate_statistics(data)
-calculate_statistics <- function(data) {
+calculate_statistics <- function(data, method) {
   if (!is.numeric(data)) {
     stop("Data must be numeric.")
   }
@@ -61,82 +62,42 @@ calculate_statistics <- function(data) {
 #' @examples
 #' data <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 #' calculate_statistics(data)
-calculate_statistics.numeric <- function(data) {
-  # Check if data is NULL before anything else
-  if (is.null(data)) {
-    stop("Data must be provided.")
-  }
+calculate_statistics <- function(data, method = "unbiased") {
+  if (is.null(data)) stop("Data must be provided.")
+  if (length(data) == 0) stop("Dataset must not be empty.")
+  if (!is.numeric(data) || !is.vector(data)) stop("Data must be numeric.")
+  if (any(is.na(data))) stop("NA values are not allowed in the dataset.")
+  if (any(is.infinite(data))) stop("Inf values are not allowed in the dataset.")
+  if (length(data) < 4) stop("Skewness and Kurtosis require at least 4 data points.")
 
-  # Check if the dataset is empty
-  if (length(data) == 0) {
-    stop("Dataset must not be empty.")
-  }
-
-  # Ensure the data is a numeric vector
-  if (!is.numeric(data) || !is.vector(data)) {
-    stop("Data must be a numeric vector.")
-  }
-
-  # Check for NA or Inf values in the data
-  if (any(is.na(data))) {
-    stop("NA values are not allowed in the dataset.")
-  }
-
-  if (any(is.infinite(data))) {
-    stop("Inf values are not allowed in the dataset.")
-  }
-
-  # Ensure at least 4 data points for skewness and kurtosis calculations
-  n <- length(data)
-  if (n < 4) {
-    stop("Skewness and Kurtosis require at least 4 data points.")
-  }
-
-  # Handle zero-variance datasets (all values are the same)
+  # Zero variance special case
   if (length(unique(data)) == 1) {
-    return(list(
-      min = min(data),
-      max = max(data),
-      mean = mean(data),
-      variance = 0,
-      sd = 0,
-      median = median(data),
-      skewness = 0,
-      skewness_squared = 0,
-      kurtosis = 0
-    ))
+    return(list(min = min(data), max = max(data), mean = mean(data), variance = 0, sd = 0, median = median(data), skewness = 0, skewness_squared = 0, kurtosis = 0))
   }
 
-  method.numeric <- method.unbiased
-  calculate_data = method(data)
+  # Calculate moments based on the selected method
+  calculate_data <- switch(method,
+                           "sample" = method.sample(data),
+                           "unbiased" = method.unbiased(data))
 
-  # Calculate data_moments
-  mean_data = mean(data) # First data_moment
-  variance_data = data_moment(data, 2) # Second data_moment (Variance)
-  skewness_data <-calculate_data$skewness  # Third data_moment (Skewness)
-  kurtosis_data <-calculate_data$kurtosis # Fourth data_moment (Excess kurtosis)
+  # Ensure that calculate_data$variance is numeric
+  if (!is.numeric(calculate_data$variance)) {
+    stop("Variance is not numeric.")
+  }
 
-  # Other statistics
-  min_data <- min(data)
-  max_data <- max(data)
-  median_data <- median(data)
-  skewness_squared <- skewness_data ^ 2
-
-  # Create result list with the "statistics" class
   result <- list(
-    min = min_data,
-    max = max_data,
-    mean = mean_data,
-    median = median_data,
-    sd = sqrt(variance_data),
-    variance = variance_data,
-    skewness = skewness_data,
-    skewness_squared = skewness_squared,
-    kurtosis = kurtosis_data
+    min = min(data),
+    max = max(data),
+    mean = mean(data),
+    median = median(data),
+    sd = sqrt(calculate_data$variance),  # Ensure variance is numeric before taking sqrt
+    variance = calculate_data$variance,
+    skewness = calculate_data$skewness,
+    skewness_squared = calculate_data$skewness^2,
+    kurtosis = calculate_data$kurtosis
   )
 
   class(result) <- "statistics"
-
   return(result)
 }
 
@@ -152,7 +113,7 @@ calculate_statistics.numeric <- function(data) {
 #'
 #' @examples
 #' data <- c(1, 2, 3, 4, 5)
-#' stats <- calculate_statistics(data)
+#' stats <- calculate_statistics(data, method = "sample")
 #' print(stats)
 print.statistics <- function(x, ...) {
   cat("Statistics for the data:\n")
@@ -166,3 +127,4 @@ print.statistics <- function(x, ...) {
   cat("Skewness Squared: ", x$skewness_squared, "\n")
   cat("Kurtosis: ", x$kurtosis, "\n")
 }
+

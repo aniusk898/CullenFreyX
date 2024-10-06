@@ -19,6 +19,6 @@ This function prints the calculated statistics (minimum, maximum, mean, variance
 }
 \examples{
 data <- c(1, 2, 3, 4, 5)
-stats <- calculate_statistics(data)
+stats <- calculate_statistics(data, method = "sample")
 print(stats)
 }

@@ -97,9 +97,12 @@ run_app <- function(data) {
                             "Data Type:",
                             choices = c("Continuous" = "continuous", "Discrete" = "discrete"),
                             selected = "continuous",
-                            # Default to continuous
                             inline = TRUE
-                        )
+                        ),
+                        radioButtons("method", "Choose Method:",
+                                     choices = c("Sample" = "sample", "Unbiased" = "unbiased"),
+                                     selected = "unbiased",
+                            inline = TRUE)
                     )
                 ),
                 column(
@@ -448,6 +451,18 @@ run_app <- function(data) {
             selected_data
         })
 
+        reactiveStatistics <- reactive({
+          req(reactiveData())
+
+          # Get the method chosen by the user ("sample" or "unbiased")
+          method_selected <- input$method  # Make the method reactive
+
+          # Calculate statistics based on the chosen method
+          stats_test <- calculate_statistics(reactiveData(), method = method_selected)
+
+          stats_test  # Return the calculated statistics
+        })
+
         # Dynamic styling based on user-selected text size
         output$dynamicStyle <- renderUI({
             sizeMapping <- list(
@@ -499,27 +514,36 @@ run_app <- function(data) {
         # Reactive value to store selected data type information
         data_info <- reactiveVal()
 
-        # Observe event when selected column changes and automatically detect data type
-        observeEvent(input$selectedColumn, {
-            req(reactiveData())
+        # Observe changes in both selected column and method
+        observe({
+          req(reactiveData())
 
-            if (is.numeric(reactiveData())) {
-                updateRadioButtons(session, "dataType", selected = "continuous")
-                data_info(data_type.continuous(reactiveData()))
-            } else {
-                updateRadioButtons(session, "dataType", selected = "discrete")
-                data_info(data_type.discrete(reactiveData()))
-            }
+          # Get the method selected by the user
+          method_selected <- input$method
+
+          # If numeric, classify as continuous data
+          if (is.numeric(reactiveData())) {
+            updateRadioButtons(session, "dataType", selected = "continuous")
+            # Pass the selected method to the data_type function
+            data_info(data_type.continuous(reactiveData(), method = method_selected))
+          } else {
+            updateRadioButtons(session, "dataType", selected = "discrete")
+            # Pass the selected method to the data_type function for discrete data
+            data_info(data_type.discrete(reactiveData(), method = method_selected))
+          }
         })
 
-        # Update data type manually
+        # Update data type manually when the user changes the data type
         observeEvent(input$dataType, {
-            req(reactiveData())
-            if (input$dataType == "continuous") {
-                data_info(data_type.continuous(reactiveData()))
-            } else {
-                data_info(data_type.discrete(reactiveData()))
-            }
+          req(reactiveData())
+
+          method_selected <- input$method
+
+          if (input$dataType == "continuous") {
+            data_info(data_type.continuous(reactiveData(), method = method_selected))
+          } else {
+            data_info(data_type.discrete(reactiveData(), method = method_selected))
+          }
         })
 
         # Tooltip handling
@@ -767,7 +791,11 @@ run_app <- function(data) {
         output$statisticsPanel <- renderUI({
             req(reactiveData())
             if (statisticsVisible()) {
-                stats_test <- calculate_statistics(reactiveData())
+              # Get the method chosen by the user ("sample" or "unbiased")
+              method_selected <- input$method
+
+              # Calculate statistics with the selected method
+              stats_test <- calculate_statistics(reactiveData(), method = method_selected)
                 HTML(
                     paste(
                         "Statistics:<br>",
@@ -848,7 +876,7 @@ run_app <- function(data) {
         thePlot <- reactive({
             if (!is.null(data_info())) {
                 req(reactiveData())
-
+                req(reactiveStatistics())
 
 
                 polygon_data <- data_info()$polygon_data

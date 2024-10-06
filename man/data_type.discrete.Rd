@@ -4,10 +4,12 @@
 \alias{data_type.discrete}
 \title{Method for Discrete Data}
 \usage{
-\method{data_type}{discrete}(data)
+\method{data_type}{discrete}(data, method)
 }
 \arguments{
 \item{data}{A numeric vector containing the discrete dataset to process.}
+
+\item{method}{A string indicating whether to use "sample" or "unbiased" method for calculating statistics.}
 }
 \value{
 A list of filtered data, theoretical points, and distribution lines.

@@ -41,7 +41,7 @@ test_that("calculate_statistics throws error for Inf values", {
 # Test that calculate_statistics throws an error if input is not a vector
 test_that("calculate_statistics throws error for non-vector input", {
   data <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2)
-  expect_error(calculate_statistics(data), "Data must be a numeric vector.")
+  expect_error(calculate_statistics(data), "Data must be numeric.")
 })
 
 # Test that calculate_statistics works correctly for larger datasets
@@ -88,7 +88,7 @@ test_that("calculate_statistics throws error for empty dataset", {
 
 # Test that calculate_statistics throws an error for NULL input
 test_that("calculate_statistics throws error for NULL input", {
-  expect_error(calculate_statistics(NULL), "Data must be numeric.")
+  expect_error(calculate_statistics(NULL), "Data must be provided.")
 })
 
 # Tests for launch_cullen_frey_app function

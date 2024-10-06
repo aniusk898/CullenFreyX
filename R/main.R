@@ -59,4 +59,5 @@ launch_cullen_frey_app <- function(data) {
     # Call the existing app function with the processed data
     run_app(processed_data)
 }
-
+data <- c(1, 2, 3, 4, 5)
+launch_cullen_frey_app(data)

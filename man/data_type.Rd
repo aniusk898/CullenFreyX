@@ -4,10 +4,12 @@
 \alias{data_type}
 \title{Generic Function for Data Type Processing}
 \usage{
-data_type(data)
+data_type(data, method)
 }
 \arguments{
 \item{data}{A numeric vector or list of numeric vectors representing the dataset to process.}
+
+\item{method}{A string indicating whether to use "sample" or "unbiased" method for calculating statistics.}
 }
 \value{
 A list containing the filtered data, theoretical points, and distribution lines for plotting.

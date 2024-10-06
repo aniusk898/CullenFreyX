@@ -4,10 +4,12 @@
 \alias{data_type.continuous}
 \title{Method for Continuous Data}
 \usage{
-\method{data_type}{continuous}(data)
+\method{data_type}{continuous}(data, method)
 }
 \arguments{
 \item{data}{A numeric vector containing the continuous dataset to process.}
+
+\item{method}{A string indicating whether to use "sample" or "unbiased" method for calculating statistics.}
 }
 \value{
 A list of filtered data, theoretical points, and distribution lines.

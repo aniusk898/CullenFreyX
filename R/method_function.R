@@ -21,7 +21,6 @@ method <- function(data) {
 method.sample <- function(data) {
     if (!is.numeric(data))
         stop("Data must be numeric.")
-
     skewness <- function(data) {
         return(data_moment(data, 3) / (data_moment(data, 2) ^ (3 / 2)))
     }
@@ -30,7 +29,8 @@ method.sample <- function(data) {
         return(data_moment(data, 4) / data_moment(data, 2) ^ 2)
     }
 
-    return(list(skewness = skewness(data), kurtosis = kurtosis(data)))
+
+    return(list(skewness = skewness(data), kurtosis = kurtosis(data), variance = data_moment(data, 2)))
 }
 
 
@@ -55,5 +55,5 @@ method.unbiased <- function(data) {
         return((n - 1) / ((n - 2) * (n - 3)) * ((n + 1) * (data_moment(data, 4) / (data_moment(data, 2)) ^ 2)- 3 * (n - 1)) + 3)
     }
 
-    return(list(skewness = skewness(data), kurtosis = kurtosis(data)))
+    return(list(skewness = skewness(data), kurtosis = kurtosis(data), variance = data_moment(data, 2)))
 }
