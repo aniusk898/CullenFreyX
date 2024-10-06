@@ -5,7 +5,7 @@
 #' @import ggplot2
 #' @importFrom plotly ggplotly renderPlotly plotlyOutput
 #' @importFrom colourpicker colourInput updateColourInput
-#' @importFrom stats median
+#' @importFrom stats_test median
 #' @importFrom utils data
 #' @importFrom Rcpp evalCpp
 #' @useDynLib CullenFreyX, .registration = TRUE
@@ -767,24 +767,24 @@ run_app <- function(data) {
         output$statisticsPanel <- renderUI({
             req(reactiveData())
             if (statisticsVisible()) {
-                stats <- calculate_statistics(reactiveData())
+                stats_test <- calculate_statistics(reactiveData())
                 HTML(
                     paste(
                         "Statistics:<br>",
                         "Min: ",
-                        stats$min,
+                        stats_test$min,
                         "<br>",
                         "Max: ",
-                        stats$max,
+                        stats_test$max,
                         "<br>",
                         "Median: ",
-                        stats$median,
+                        stats_test$median,
                         "<br>",
                         "Skewness Squared: ",
-                        stats$skewness_squared,
+                        stats_test$skewness_squared,
                         "<br>",
                         "Kurtosis: ",
-                        stats$kurtosis,
+                        stats_test$kurtosis,
                         "<br>"
                     )
                 )
@@ -848,11 +848,14 @@ run_app <- function(data) {
         thePlot <- reactive({
             if (!is.null(data_info())) {
                 req(reactiveData())
-              xmax <- max(4, ceiling(stats$skewness_squared))
-              ymax <- max(10, ceiling(stats$kurtosis))
+
+
 
                 polygon_data <- data_info()$polygon_data
                 theoretical_points <- data_info()$theoretical_points
+                xmax <- max(4, ceiling(theoretical_points$skewness_squared[1]))
+                ymax <- max(10, ceiling(theoretical_points$kurtosis[1]))
+
 
                 if (input$dataType == "continuous") {
                     color_map <- saved_colors_continuous()
@@ -1286,3 +1289,5 @@ run_app <- function(data) {
 }
 
 
+data = rnorm(100) #Generate a dataset to test the app
+launch_cullen_frey_app(data) # Launch the app
