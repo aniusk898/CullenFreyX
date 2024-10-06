@@ -514,34 +514,42 @@ run_app <- function(data) {
         # Reactive value to store selected data type information
         data_info <- reactiveVal()
 
-        # Observe changes in both selected column and method
+        # Observe event when selected column or method changes
+        # Observe event when selected column or method changes
         observe({
           req(reactiveData())
 
-          # Get the method selected by the user
+          # Obtiene el método seleccionado por el usuario
           method_selected <- input$method
 
-          # If numeric, classify as continuous data
-          if (is.numeric(reactiveData())) {
-            updateRadioButtons(session, "dataType", selected = "continuous")
-            # Pass the selected method to the data_type function
+          # Usa el valor de input$dataType seleccionado por el usuario sin cambiarlo automáticamente
+          data_type_selected <- input$dataType
+
+          # Actualiza la información según el tipo de dato seleccionado por el usuario y el método
+          if (data_type_selected == "continuous") {
             data_info(data_type.continuous(reactiveData(), method = method_selected))
-          } else {
-            updateRadioButtons(session, "dataType", selected = "discrete")
-            # Pass the selected method to the data_type function for discrete data
+          } else if (data_type_selected == "discrete") {
             data_info(data_type.discrete(reactiveData(), method = method_selected))
           }
         })
 
         # Update data type manually when the user changes the data type
-        observeEvent(input$dataType, {
+
+
+        observeEvent({
+          input$dataType
+          input$method
+        }, {
           req(reactiveData())
 
+          # Obtiene el tipo de dato y el método seleccionado
+          data_type_selected <- input$dataType
           method_selected <- input$method
 
-          if (input$dataType == "continuous") {
+          # Actualiza la información con base en el tipo de dato y método
+          if (data_type_selected == "continuous") {
             data_info(data_type.continuous(reactiveData(), method = method_selected))
-          } else {
+          } else if (data_type_selected == "discrete") {
             data_info(data_type.discrete(reactiveData(), method = method_selected))
           }
         })
@@ -1090,7 +1098,7 @@ run_app <- function(data) {
                                 y = y,
                                 color = "NegBin"
                             ),
-                            size = line_size_map[["NegBin"]],  # Tamaño de línea
+                            linewidth = line_size_map[["NegBin"]],  # Tamaño de línea
                             alpha = line_alpha_map[["NegBin"]]  # Alpha predeterminado a 0.3
                         ) +
                         geom_line(
@@ -1101,7 +1109,7 @@ run_app <- function(data) {
                                 color = "Poisson",
                                 linetype = "Poisson"
                             ),
-                            size = line_size_map[["Poisson"]],  # Tamaño de línea
+                            linewidth = line_size_map[["Poisson"]],  # Tamaño de línea
                             alpha = line_alpha_map[["Poisson"]]  # Transparencia (alpha)
                         ) +
                         scale_shape_manual(values = c(

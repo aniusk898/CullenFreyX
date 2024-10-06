@@ -128,3 +128,4 @@ print.statistics <- function(x, ...) {
   cat("Kurtosis: ", x$kurtosis, "\n")
 }
 
+

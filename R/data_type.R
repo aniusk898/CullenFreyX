@@ -55,10 +55,6 @@ data_type.continuous <- function(data, method) {
   s2_line <- (es2 + 2)^2 * (es2 - 1)
   y_line <- es2^4 + 2 * es2^3 + 3 * es2^2 - 3
   lognormal_line <- data.frame(skewness_squared = s2_line[s2_line <= xmax], kurtosis = y_line[s2_line <= xmax])
-
-  # Filter the lines based on the maximum skewness and kurtosis values for the plot
-  gamma_line <- subset(gamma_line, skewness_squared <= xmax & kurtosis <= ymax)
-  lognormal_line <- subset(lognormal_line, skewness_squared <= xmax & kurtosis <= ymax)
   polygon_data$distribution <- "Beta Distribution"
 
   # Return a list of the filtered data, theoretical points, and distribution lines for plotting
@@ -113,9 +109,6 @@ data_type.discrete <- function(data, method) {
   s2_line <- 1 / lambda
   y_line <- (3 + 1 / lambda)
   poisson_line <- data.frame(skewness_squared = s2_line[s2_line <= xmax], kurtosis = y_line[s2_line <= xmax])
-
-  # Filter the Poisson line for plotting
-  poisson_line <- subset(poisson_line, skewness_squared <= xmax & kurtosis <= ymax)
   polygon_data$distribution <- "NegBin Distribution"
 
   # Return a list of the filtered data, theoretical points, and Poisson line for plotting
