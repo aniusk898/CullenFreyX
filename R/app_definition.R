@@ -293,7 +293,7 @@ run_app <- function(data) {
                             "Point and line Transparency:",
                             min = 0.1,
                             max = 1,
-                            value = 0.6,
+                            value = 1,
                             step = 0.1
                         )
                     ),
@@ -377,7 +377,7 @@ run_app <- function(data) {
         # Reactive values to store selected color, point size, and transparency (alpha)
         selected_color <- reactiveVal("#FF5733")
         selected_point_size <- reactiveVal(3)
-        selected_point_alpha <- reactiveVal(0.6)  # Default alpha value
+        selected_point_alpha <- reactiveVal(1)  # Default alpha value
 
 
         # Reactive values to store saved settings for continuous and discrete distributions
@@ -854,13 +854,13 @@ run_app <- function(data) {
                 saved_alpha <- saved_alpha_continuous()[[input$distributionSelect]] %||% 1
                 saved_color <- saved_colors_continuous()[[input$distributionSelect]] %||% "#E83209"
                 saved_line_size <- saved_line_sizes_continuous()[[input$distributionSelect]] %||% 1
-                saved_line_alpha <- saved_line_alpha_continuous()[[input$distributionSelect]] %||% 0.5
+                saved_line_alpha <- saved_line_alpha_continuous()[[input$distributionSelect]] %||% 1
             } else {
                 saved_size <- saved_point_sizes_discrete()[[input$distributionSelect]] %||% 3
                 saved_alpha <- saved_alpha_discrete()[[input$distributionSelect]] %||% 1
                 saved_color <- saved_colors_discrete()[[input$distributionSelect]] %||% "#E83209"
                 saved_line_size <- saved_line_sizes_discrete()[[input$distributionSelect]] %||% 1
-                saved_line_alpha <- saved_line_alpha_discrete()[[input$distributionSelect]] %||% 0.5
+                saved_line_alpha <- saved_line_alpha_discrete()[[input$distributionSelect]] %||% 1
             }
 
             updateSliderInput(session, "pointSize", value = saved_size)
@@ -907,7 +907,7 @@ run_app <- function(data) {
                     if (dist == input$distributionSelect) {
                         input$pointAlpha  # Real-time slider value
                     } else {
-                        point_alpha_map[[dist]] %||% 0.5  # Saved alpha or default
+                        point_alpha_map[[dist]] %||% 1  # Saved alpha or default
                     }
                 })
 
@@ -923,8 +923,8 @@ run_app <- function(data) {
                     )
 
                     line_alpha_map <- c(
-                        "Lognormal" = ifelse(input$distributionSelect == "Lognormal", input$pointAlpha, saved_line_alpha_continuous()[["Lognormal"]] %||% 0.5),
-                        "Gamma" = ifelse(input$distributionSelect == "Gamma", input$pointAlpha, saved_line_alpha_continuous()[["Gamma"]] %||% 0.5),
+                        "Lognormal" = ifelse(input$distributionSelect == "Lognormal", input$pointAlpha, saved_line_alpha_continuous()[["Lognormal"]] %||% 1),
+                        "Gamma" = ifelse(input$distributionSelect == "Gamma", input$pointAlpha, saved_line_alpha_continuous()[["Gamma"]] %||% 1),
                         "Beta Distribution" = ifelse(input$distributionSelect == "Beta Distribution", input$pointAlpha, saved_line_alpha_continuous()[["Beta Distribution"]] %||% 0.3)
                     )
 
