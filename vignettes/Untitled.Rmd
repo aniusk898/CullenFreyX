@@ -1,0 +1,227 @@
+# Creating an Rmd document with function descriptions and formulas
+rmd_content = """
+---
+title: "Function Descriptions and Formulas"
+output: html_document
+---
+
+## Introduction
+
+This document describes the key functions used in the package and explains the statistical formulas behind them. The focus is on functions that calculate skewness, kurtosis, and bootstrap estimates for distributions.
+
+## 1. `calculate_statistics` Function
+
+The `calculate_statistics` function computes basic statistics, such as skewness and kurtosis, for a given dataset. It uses sample and unbiased estimations, as described below.
+
+### Skewness and Kurtosis Calculation
+
+Skewness and kurtosis are calculated using the following moments:
+
+- **First Moment (Mean)**:  
+  \[
+  \mu_1 = \frac{1}{n} \sum_{i=1}^{n} x_i
+  \]
+  
+- **Second Central Moment (Variance)**:  
+  \[
+  \mu_2 = \frac{1}{n} \sum_{i=1}^{n} (x_i - \mu_1)^2
+  \]
+
+- **Third Central Moment (Skewness)**:  
+  \[
+  \mu_3 = \frac{1}{n} \sum_{i=1}^{n} (x_i - \mu_1)^3
+  \]
+  
+- **Fourth Central Moment (Kurtosis)**:  
+  \[
+  \mu_4 = \frac{1}{n} \sum_{i=1}^{n} (x_i - \mu_1)^4
+  \]
+
+### Sample and Unbiased Skewness
+
+- **Sample Skewness**:  
+  \[
+  \text{Sample Skewness} = \frac{\sqrt{n} \cdot \mu_3}{\mu_2^{3/2}}
+  \]
+
+- **Unbiased Skewness**:  
+  \[
+  \text{Unbiased Skewness} = \frac{n}{(n-1)(n-2)} \cdot \text{Sample Skewness}
+  \]
+
+### Sample and Unbiased Kurtosis
+
+- **Sample Kurtosis**:  
+  \[
+  \text{Sample Kurtosis} = \frac{n \cdot \mu_4}{\mu_2^2}
+  \]
+
+- **Unbiased Kurtosis**:  
+  \[
+  \text{Unbiased Kurtosis} = \frac{(n+1) \cdot (n-1)}{(n-2)(n-3)} \cdot (\text{Sample Kurtosis} - 3) + 3
+  \]
+
+## 2. `method_function` for Skewness and Kurtosis
+
+The `method_function` computes skewness and kurtosis using either sample or unbiased estimates. Depending on whether the dataset represents a population or a sample, we use different formulas for these calculations.
+
+### Population vs Sample Estimation
+
+- **Sample-based Skewness and Kurtosis**: Used when the dataset is a sample.
+- **Unbiased Estimation**: Adjusted for small sample sizes to correct for bias.
+
+## 3. `launch_cullen_frey_app` Function
+
+This function launches an interactive Shiny app that visualizes the Cullen-Frey plot for a dataset. The app allows users to explore skewness and kurtosis values of various distributions.
+
+### Cullen-Frey Plot
+
+The Cullen-Frey plot shows skewness squared vs kurtosis for different distributions. Theoretical distributions like normal, uniform, logistic, and exponential distributions are plotted on this graph. The skewness and kurtosis values are calculated as explained earlier.
+
+## 4. Bootstrap Methods
+
+The package also provides bootstrap methods for estimating statistics. Bootstrap samples are drawn repeatedly to generate distributions of the statistics (e.g., mean, skewness, kurtosis).
+
+### Bootstrap Process
+
+1. **Resample** the dataset with replacement.
+2. **Compute statistics** for each resample.
+3. **Aggregate results** over many bootstrap samples to form estimates.
+
+- **Bootstrap Skewness**:  
+  Bootstrap skewness is calculated similarly to the sample skewness formula, but applied to each bootstrap sample.
+
+- **Bootstrap Kurtosis**:  
+  Similarly, kurtosis is computed for each bootstrap sample.
+
+### Bootstrap Formulas
+
+For each resample \( x_1, x_2, \dots, x_n \):
+
+\[
+\text{Bootstrap Skewness} = \frac{\sqrt{n} \cdot \mu_3^{(B)}}{\mu_2^{3/2 \ (B)}}
+\]
+
+\[
+\text{Bootstrap Kurtosis} = \frac{n \cdot \mu_4^{(B)}}{\mu_2^{2 \ (B)}}
+\]
+
+where \( \mu_3^{(B)} \) and \( \mu_4^{(B)} \) are the third and fourth moments calculated for the bootstrap sample.
+
+## 5. `data_type` Function
+
+The `data_type` function determines whether the dataset is continuous or discrete, based on its characteristics. It returns specific information for plotting the Cullen-Frey graph.
+
+### Continuous vs Discrete
+
+- **Continuous Data**: Data that can take on any value within a range (e.g., normal distribution).
+- **Discrete Data**: Data that takes on distinct, separate values (e.g., Poisson distribution).
+
+"""
+
+# Writing the content to a .Rmd file
+rmd_file_path = '/mnt/data/Function_Descriptions_and_Formulas.Rmd'
+with open(rmd_file_path, 'w') as file:
+    file.write(rmd_content)
+
+rmd_file_path
+################################
+---
+title: "Key Formulas for Moments, Skewness, and Kurtosis"
+output: html_document
+---
+
+# Key Formulas
+
+## Moments
+
+The \( k \)-th moment of a dataset \( x_1, x_2, \dots, x_n \) about the mean \( \mu \) is given by:
+
+\[
+M_k = \frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^k
+\]
+
+- The first moment \( M_1 \) represents the mean of the dataset.
+- The second moment \( M_2 \) gives us the variance of the data.
+
+## Skewness
+
+Skewness is a measure of the asymmetry of the probability distribution. It is calculated by:
+
+\[
+\text{Skewness} = \frac{\frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^3}{\left(\frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^2\right)^{3/2}}
+\]
+
+In the function, we square the skewness value to return `skewness_squared`, which is easier to interpret and plot.
+
+## Kurtosis
+
+Kurtosis measures the "tailedness" of the probability distribution. It is given by:
+
+\[
+\text{Kurtosis} = \frac{\frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^4}{\left(\frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^2\right)^2}
+\]
+
+Kurtosis compares how much of the distribution is in the tails compared to a normal distribution. A higher kurtosis indicates more extreme outliers. We calculate the excess kurtosis by subtracting 3 (since normal distributions have a kurtosis of 3 by definition).
+
+# Beta Distribution Formulas
+
+The Beta distribution is modeled using theoretical formulas for skewness (\( s^2 \)) and kurtosis (\( y \)):
+
+\[
+s^2 = \frac{4 \cdot (e^{lq} - e^{-a})^2 \cdot (e^{-a} + e^{lq} + 1)}{(e^{-a} + e^{lq} + 2)^2 \cdot e^{-a} \cdot e^{lq}}
+\]
+
+\[
+y = \frac{3 \cdot (e^{-a} + e^{lq} + 1) \cdot (e^{-a} \cdot e^{lq} \cdot (e^{-a} + e^{lq} - 6) + 2 \cdot (e^{-a} + e^{lq})^2)}{e^{-a} \cdot e^{lq} \cdot (e^{-a} + e^{lq} + 2) \cdot (e^{-a} + e^{lq} + 3)}
+\]
+
+These equations model the skewness and kurtosis values for the Beta distribution.
+
+# Gamma Distribution Formulas
+
+The skewness and kurtosis values for the Gamma distribution are generated using the following relation:
+
+\[
+\text{Kurtosis}_\gamma = \frac{3}{2} \cdot \text{Skewness}_\gamma^2 + 3
+\]
+
+This relationship is used to plot a theoretical gamma distribution curve.
+
+# Lognormal Distribution Formulas
+
+The Lognormal distribution's skewness and kurtosis are calculated using:
+
+\[
+s^2 = (e^x + 2)^2 \cdot (e^x - 1)
+\]
+
+\[
+y = e^{4x} + 2e^{3x} + 3e^{2x} - 3
+\]
+
+# Unbiased and Sample-Based Calculations
+
+In statistical applications, we distinguish between sample moments and unbiased moments:
+
+## Sample Moments
+
+Sample moments are used directly from the data without any correction for bias. For example, the sample variance is calculated as:
+
+\[
+\text{Sample Variance} = \frac{1}{n} \sum_{i=1}^{n} (x_i - \bar{x})^2
+\]
+
+The skewness and kurtosis calculated from these sample moments are biased estimates.
+
+## Unbiased Moments
+
+Unbiased moments apply a correction to account for bias. For variance, the unbiased estimator is:
+
+\[
+\text{Unbiased Variance} = \frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})^2
+\]
+
+Similarly, skewness and kurtosis can be adjusted using Bessel's correction to provide unbiased estimates.
+
+

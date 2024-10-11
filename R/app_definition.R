@@ -1276,7 +1276,7 @@ run_app <- function(data) {
                 reportContent <- c(
                     "---",
                     paste0(
-                        "title: 'Report of Cullen-Frey Graph and Distribution Comments for dataset ",
+                        "title: 'Report of Cullen-Frey Graph and Distribution Comments for: ",
                         dataset_name,
                         "'"
                     ),

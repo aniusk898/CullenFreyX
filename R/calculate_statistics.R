@@ -58,11 +58,11 @@ calculate_statistics <- function(data, method) {
 #'   \item{kurtosis}{The kurtosis (excess kurtosis) of the data.}
 #' }
 #' @export
-#'
 #' @examples
 #' data <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 #' calculate_statistics(data)
 calculate_statistics <- function(data, method = "unbiased") {
+
   if (is.null(data)) stop("Data must be provided.")
   if (length(data) == 0) stop("Dataset must not be empty.")
   if (!is.numeric(data) || !is.vector(data)) stop("Data must be numeric.")

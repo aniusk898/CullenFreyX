@@ -10,6 +10,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 runtime: shiny
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -18,17 +19,15 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
 # Overview of CullenFreyX
 
-The **CullenFreyX** package provides an interactive Shiny application to visualize the Cullen-Frey graph, which is used to analyze skewness and kurtosis of different datasets. This package helps in comparing observed data distributions with theoretical distributions such as Normal, Uniform, Logistic, Exponential, Lognormal, and Gamma distributions.
-
+The **CullenFreyX** package provides an interactive Shiny application to visualize the Cullen-Frey graph, which is used to analyze skewness and kurtosis of different datasets. This package helps in comparing observed data distributions with theoretical continuous distributions such as Normal, Uniform, Logistic, Exponential, Lognormal, Beta,etc or discrete distributions like Poisson or Negative Binomial.
 ## Installation
 
 You can install the development version of the package from GitHub using:
 
 
-```{r}
+```{r, eval=FALSE}
 devtools::install_github("https://github.com/aniusk898/CullenFreyX")
 ```
 
@@ -38,17 +37,223 @@ Once installed, you can load the package:
 library(CullenFreyX)
 ```
 
-The main feature of this package is an interactive Shiny application, which can be launched with the following command:
+# Cullen and Frey Plot
+The Cullen-Frey plot is a visual tool based on concepts and techniques developed by Cullen and Frey in their 1999 work [@CullenFrey1999]. This plot is used in statistical analysis to identify the appropriate distribution of a dataset by comparing its measurements (skewness and kurtosis) with the known characteristics of theoretical distributions. Skewness measures the symmetry of the distribution: positive skewness indicates that the right tail is heavier than the left tail, while negative skewness indicates the opposite. Kurtosis measures the ``sharpness" of the distribution: high kurtosis indicates heavier tails and higher peaks, while low kurtosis indicates a flatter distribution with lighter tails.
+
+## Objectives
+The primary objective is to develop an R package that creates an interactive, customizable, and exportable Cullen-Frey plot. 
+
+## User expectations
+The idea is that the proposed package will provide efficient and user-friendly implementations on Cullen-Frey plot allowing import multiple samples, export and customize the plot, and also explore relevant information with a simple click.
+
+# Functions
+
+
+## `data_moment` 
+
+This utility function is used to compute the higher-order moments (such as the second, third, and fourth moments) necessary for calculating variance, skewness, and kurtosis.
+
+The k-th central moment is calculated as:
+The \( k \)-th moment of a dataset \( x_1, x_2, \dots, x_n \) about the mean \( \mu \) is given by:
+
+\[
+M_k = \frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^k
+\]
+
+- The first moment \( M_1 \) represents the mean of the dataset.
+- The second moment \( M_2 \) gives us the variance of the data.
+ 
+Moments play a critical role in determining the shape of the distribution, with higher-order moments (such as skewness and kurtosis) being essential for analyzing the tails and symmetry of the distribution.
+
+## `method.unbiased` and `method.sample`
+
+In stats, we often talk about **sample moments** and **unbiased moments**. The Cullen-Frey package lets you calculate both skewness and kurtosis, depending on what you need. The key thing to know is that **sample moments** are calculated directly from your data, but they tend to have a bit of bias, especially when you’re working with small datasets. This bias isn’t a big deal with large datasets, but in smaller ones, it can lead to misinterpreting your data’s skewness or kurtosis [@joanes1998comparing].
+
+To fix this, **unbiased moments** add a correction factor to give a more accurate picture, especially when working with smaller samples. So, it’s important to know when to use **sample** versus **unbiased** stats to avoid misinterpretations.
+
+### Sample Skewness and Kurtosis
+
+
+The **sample skewness** formula is used to measure how symmetrical your data is. The formula is:
+
+$$
+\text{Sample Skewness} = \frac{\sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^3}{n}
+$$
+
+Where:
+- \(n\) is the number of observations.
+- \(x_i\) is each data point.
+- \(\bar{x}\) is the mean of the data.
+- \(s\) is the standard deviation.
+
+This formula gives you an idea of whether your data is skewed to the left or right, but it can be a little off for smaller datasets since it doesn’t account for bias. That's why we sometimes apply corrections when the sample size is small [@joanes1998comparing].
+
+
+Kurtosis tells you how "peaked" or "flat" your distribution is compared to a normal distribution. Here's the formula for **sample kurtosis**:
+
+$$
+\text{Sample Kurtosis} = \frac{\sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^4}{n} - 3
+$$
+
+The `-3` at the end is to adjust the value so that the kurtosis of a normal distribution equals 0 (this is called **excess kurtosis**). Like skewness, **sample kurtosis** might be biased in small samples [@decarlo1997].
+
+### Unbiased Skewness and Kurtosis
+
+
+
+When working with small datasets, we use **unbiased skewness** to fix the bias in the sample skewness formula. The adjusted formula looks like this:
+
+$$
+\text{Unbiased Skewness} = \frac{\sqrt{n(n-1)}}{n-2} \cdot \text{Sample Skewness}
+$$
+
+This formula helps give a better estimate of skewness for smaller datasets [@fisher1930moments].
+
+
+
+Similarly, we adjust kurtosis for small datasets to get **unbiased kurtosis**. The formula is a bit more complex:
+
+$$
+\text{Unbiased Kurtosis} = \frac{(n-1)}{(n-2)(n-3)} \left[(n+1)\left( \frac{\sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^4}{n} \right) - 3(n-1)\right] + 3
+$$
+
+This adjustment helps provide a clearer picture of the data's shape when working with small samples [@joanes1998comparing].
+
+
+So, when analyzing data, especially if your sample size is small, it’s important to understand the difference between **sample** and **unbiased** stats. The unbiased versions are particularly helpful because they correct for the bias present in small datasets, making your analysis more accurate.
+
+
+## `calculate_statistics` 
+
+This function calculates various statistical measures such as minimum, maximum, median, skewness, and kurtosis (either sample or unbiased) for a given dataset. It serves as a helper function designed to extract key statistical properties from the data, ensuring that all necessary checks and calculations are handled appropriately.
+
+- **Null and Empty Data Handling**: The function begins by checking if the input dataset is `NULL` or empty. If either condition is true, it raises an appropriate error to prevent invalid processing of the data.
+
+- **Type and Validity Checks**: Next, the function ensures that the dataset is a numeric vector. Additionally, it checks for any `NA` or `Inf` values, which would indicate invalid data points, and raises errors if any are found. This helps to maintain the integrity of the calculations by ensuring the data is clean and ready for analysis.
+
+- **Skewness and Kurtosis Calculations**: For datasets containing fewer than 4 data points, skewness and kurtosis are not calculated since both measures require a minimum of 4 observations to be meaningful.
+ In cases where the dataset has zero variance (i.e., all values are identical), skewness and kurtosis are set to 0 because there is no variability in the data to calculate these measures.
+
+- **Handling Sample or Unbiased Method**: The function supports both "sample" and "unbiased" methods for calculating skewness and kurtosis. The **sample method** computes skewness and kurtosis based directly on the dataset. and the **unbiased method** applies corrections to provide unbiased estimates for skewness and kurtosis, which is especially useful for small datasets.
+
+This function can be used independently from the app, but it only accepts numeric data. It calculates basic statistical measures, including minimum, maximum, median, variance, skewness, and kurtosis.
 
 ```{r}
-data = rnorm(100) #Generate a dataset to test the app
-launch_cullen_frey_app(data) # Launch the app
+data = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+calculate_statistics(data)
+
+```
+
+For the observed dataset, the default behavior in the package is to calculate unbiased statistics for skewness and kurtosis. This is especially useful when working with sample data and want to estimate population parameters without the bias introduced by small sample sizes.
+
+## `data_type.continuous` and `data_type.discrete`
+
+The `data_type.continuous` function is used to generate continuous distribution data for the Cullen-Frey graph. This graph includes theoretical lines for distributions like **Beta**, **Gamma**, and **Lognormal**. The formulas for skewness and kurtosis used in this function are derived from theoretical models and are similar to those implemented in the `fitdistrplus` package for distribution fitting and graphical representation [@fitdistrplus].
+
+
+- **Beta Distribution Polygon**:
+The Beta distribution's skewness and kurtosis are modeled using specific theoretical formulas:
+
+$$
+s^2 = \frac{4 \cdot (e^{lq} - e^{-a})^2 \cdot (e^{-a} + e^{lq} + 1)}{(e^{-a} + e^{lq} + 2)^2 \cdot e^{-a} \cdot e^{lq}}
+$$
+
+$$
+k = \frac{3 \cdot (e^{-a} + e^{lq} + 1) \cdot (e^{-a} \cdot e^{lq} \cdot (e^{-a} + e^{lq} - 6) + 2 \cdot (e^{-a} + e^{lq})^2)}{e^{-a} \cdot e^{lq} \cdot (e^{-a} + e^{lq} + 2) \cdot (e^{-a} + e^{lq} + 3)}
+$$
+
+These equations generate the data needed to create the Beta distribution polygon, which is then plotted on the Cullen-Frey graph.
+
+- **Gamma Line**:
+The Gamma distribution’s skewness and kurtosis follow the relationship:
+
+$$
+Kurtosis = \frac{3}{2} \cdot Skewness^2 + 3
+$$
+
+This linear relation allows us to generate the Gamma distribution line on the Cullen-Frey graph [@fitdistrplus].
+
+- **Lognormal Line**:
+For the Lognormal distribution, the skewness and kurtosis are calculated using the following equations:
+
+$$
+s^2 = \frac{(e^x + 2)^2}{(e^x - 1)}
+$$
+
+$$
+k = e^{4x} + 2e^{3x} + 3e^{2x} - 3
+$$
+
+These theoretical values are plotted as a curve to represent the Lognormal distribution on the graph.
+
+The theoretical points represent the skewness and kurtosis of observed data and  specific theoretical distributions. These points help to visualize and compare the shape characteristics of different continuous and discrete distributions.
+
+- **Normal Distribution**: 
+  - Skewness: 0
+  - Kurtosis: 3
+  - The normal distribution is symmetric, with no skewness, and its kurtosis is set to 3 by definition, which represents a normal "peakedness" relative to other distributions.
+  
+- **Uniform Distribution**: 
+  - Skewness: 0
+  - Kurtosis: 1.8
+  - The uniform distribution is also symmetric (no skewness), but it has a lower kurtosis, meaning it has less "peakedness" and lighter tails than the normal distribution.
+  
+- **Logistic Distribution**: 
+  - Skewness: 0
+  - Kurtosis: 4.2
+  - Like the normal distribution, the logistic distribution is symmetric (no skewness), but it has a higher kurtosis, meaning it has heavier tails and a more pronounced peak compared to the normal distribution.
+  
+- **Exponential Distribution**: 
+  - Skewness: 2
+  - Kurtosis: 9
+  - The exponential distribution is not symmetric (skewness of 2), and it has heavy tails, as reflected by its high kurtosis. This makes it more prone to extreme values.
+
+### Discrete Data and Distributions:
+The `data_type.discrete` function handles discrete datasets, such as those that fit **Negative Binomial** or **Poisson** distributions. It calculates skewness and kurtosis based on the specific characteristics of these distributions. The theoretical points here are the observed data and Normal distribution with the same characteristics as before mentioned.
+
+- **Negative Binomial Distribution**:
+For the Negative Binomial distribution, the skewness and kurtosis formulas are as follows:
+
+$$
+s^2 = \frac{(2 - e^{-a})^2}{e^{lr} \cdot (1 - e^{-a})}
+$$
+
+
+$$
+k = 3 + \frac{6}{e^{lr}} + \frac{(e^{-a})^2}{e^{lr} \cdot (1 - e^{-a})}
+$$
+
+- **Poisson Distribution Line**:
+The Poisson distribution’s skewness and kurtosis are calculated with these simple formulas:
+
+$$
+s^2 = \frac{1}{\lambda}
+$$
+
+$$
+y = 3 + \frac{1}{\lambda}
+$$
+
+These formulas define the shape of the Poisson distribution curve on the Cullen-Frey graph, and are implemented similarly to how they are used in the `fitdistrplus` package [@fitdistrplus].
+
+## `Bootstrap_method`
+
+This function, written in **Rcpp**, implements a general bootstrap method to estimate skewness and kurtosis for a given dataset. Bootstrapping is a statistical technique that involves repeatedly sampling from a dataset (with or without replacement) to generate multiple bootstrap samples. For each sample, skewness and kurtosis are calculated, allowing for robust statistical estimation. This function gives users the option to compute these statistics using either the sample method or the unbiased method [@efron1994introduction].
+
+
+## `run_app`
+This is the core function that launches the Shiny app for visualizing distributions using the Cullen-Frey graph. It handles the interactive elements like data selection, distribution display, and customization
+
+```{r}
+data <-rpois(100, lambda = 5)
+run_app(data) # Launch the app
 
 ```
 This will launch the Cullen-Frey interactive graph application in a new window. In this app, you can interact with datasets, adjust graph settings, and customize the appearance of the graph. Once the app is running, you will be able to:
 
 - **Select a Dataset**: Choose datasets from a dropdown menu that automatically populates based on the data input.
 - **Select Data Type**: Toggle between continuous or discrete distributions, depending on your dataset.
+- **Select Method Type**: Toggle between sample or ubiased calculations, depends on the user preferences.
 - **Bootstrap Sampling Options**: Choose from different bootstrap methods (or none) and specify the number of samples.
 - **Customize Distribution Colors**: Use the colourInput feature or select from pre-defined colorblind-friendly palettes to change the colors of the displayed distributions.
 - **Insert Comments**: Add custom comments for each distribution, which will be displayed on hover in the graph.
@@ -105,6 +310,23 @@ knitr::include_graphics("images/tooltip.png")
 
 ```
 
+# `launch_cullen_frey_app`
+This function launches the `run_app()` application, allowing users to visualize the skewness and kurtosis of various datasets and distributions. This function accepts flexible input formats, including vectors, lists of vectors, or dataframes, and processes the data to ensure all elements have appropriate names before launching the interactive visualization app.
+
+The main purpose of launch_cullen_frey_app is to handle different types of input data and ensure that they are correctly formatted before passing them to run_app() for visualization. This makes launch_cullen_frey_app more flexible in terms of input data types compared to run_app(), which requires properly structured data.. So, the differences between this function and `run_app()` are: 
+
+- **Input Flexibility**: The function works with different data structures such as vectors, lists, and dataframes. If a vector is provided, it’s converted into a list. If a list is provided without names for each dataset, the function automatically assigns names (`"dataset1"`, `"dataset2"`, etc.).
+  
+- **Data Processing**: The function contains an internal helper function `process_input_data` that handles the following tasks:
+  - If the input is a vector, it is wrapped into a list.
+  - If the input is a list, it ensures all datasets are named. Unnamed datasets are assigned default names.
+  
+- **App Launch**: Once the input data is processed, it is passed to the `run_app` function, which starts the interactive Cullen-Frey graph application. Users can then explore skewness and kurtosis of their datasets through this visualization tool.
+
+
+
+
+
 # Examples os usage
 ```{r}
 # Example 1: Named list of numeric vectors
@@ -122,8 +344,8 @@ data4 <- matrix(rnorm(20), nrow = 10, ncol = 2)
 # Example 5: Named numeric vector
 data5 <- c(a = rnorm(100), b = runif(100))
 
-# Example 6😬: Unnamed numeric vector
-data6 <- c(rnorm(3), runif(100))
+# Example 6 : Unnamed numeric vector
+data6 <- runif(100)
 
 
 # Example 7: Empty data frame
@@ -131,12 +353,5 @@ data7 <- data.frame()
 
 ```
 
-# Cullen and Frey Plot
-The Cullen-Frey plot is a visual tool based on concepts and techniques developed by Cullen and Frey in their 1999 work \citep{CullenFrey1999}. This plot is used in statistical analysis to identify the appropriate distribution of a dataset by comparing its measurements (skewness and kurtosis) with the known characteristics of theoretical distributions. Skewness measures the symmetry of the distribution: positive skewness indicates that the right tail is heavier than the left tail, while negative skewness indicates the opposite. Kurtosis measures the ``sharpness" of the distribution: high kurtosis indicates heavier tails and higher peaks, while low kurtosis indicates a flatter distribution with lighter tails.
 
-## Objectives
-The primary objective is to develop an R package that creates an interactive, customizable, and exportable Cullen-Frey plot. 
-
-## User expectations
-The idea is that the proposed package will provide efficient and user-friendly implementations on Cullen-Frey plot allowing import multiple samples, export and customize the plot, and also explore relevant information with a simple click.
-
+# References
