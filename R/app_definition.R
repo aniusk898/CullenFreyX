@@ -88,19 +88,19 @@ run_app <- function(data) {
                     # Dataset column and data type selection
                     div(
                         style = "display: inline-block; width: 100%; vertical-align:top;",
-                        selectInput("selectedColumn", "Select a Dataset Column:", names(data))
+                        selectInput("selectedColumn", "Select a Dataset:", names(data))
                     ),
                     div(
                         style = "display: inline-block; width: 120%; vertical-align:top;",
                         radioButtons(
                             "dataType",
-                            "Data Type:",
+                            "Select the Data Type:",
                             choices = c("Continuous" = "continuous", "Discrete" = "discrete"),
                             selected = "continuous",
                             inline = TRUE
                         ),
-                        radioButtons("method", "Choose Method:",
-                                     choices = c("Sample" = "sample", "Unbiased" = "unbiased"),
+                        radioButtons("method", "Select a  Method:",
+                                     choices = c( "Unbiased" = "unbiased", "Sample" = "sample"),
                                      selected = "unbiased",
                             inline = TRUE)
                     )
