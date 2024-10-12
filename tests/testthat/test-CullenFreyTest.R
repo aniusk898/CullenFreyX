@@ -127,9 +127,7 @@ test_that("launch_cullen_frey_app assigns names to unnamed list elements",
           })
 
 # Test for input with a matrix as input
-test_that("launch_cullen_frey_app throws error for unsupported input types",
-          {
-            data_matrix <- matrix(rnorm(100), nrow = 10)
-            expect_silent(launch_cullen_frey_app(data))
-
-          })
+test_that("launch_cullen_frey_app works for matrix input", {
+  data_matrix <- matrix(rnorm(100), nrow = 10)
+  expect_silent(launch_cullen_frey_app(data_matrix))
+})
