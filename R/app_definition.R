@@ -83,49 +83,108 @@ run_app <- function(data) {
 
             # Row for dataset column selection, data type, bootstrap method, and download buttons
             fluidRow(
-                column(
-                    4,
-                    # Dataset column and data type selection
-                    div(
-                        style = "display: inline-block; width: 100%; vertical-align:top;",
-                        selectInput("selectedColumn", "Select a Dataset:", names(data))
-                    ),
-                    div(
-                        style = "display: inline-block; width: 120%; vertical-align:top;",
-                        radioButtons(
-                            "dataType",
-                            "Select the Data Type:",
-                            choices = c("Continuous" = "continuous", "Discrete" = "discrete"),
-                            selected = "continuous",
-                            inline = TRUE
-                        ),
-                        radioButtons("method", "Select a  Method:",
-                                     choices = c( "Unbiased" = "unbiased", "Sample" = "sample"),
-                                     selected = "unbiased",
-                            inline = TRUE)
-                    )
+              column(
+                4,
+                # Dataset column and data type selection
+                div(
+                  style = "display: inline-block; width: 100%; vertical-align:top;",
+                  selectInput("selectedColumn", "Select a Dataset:", names(data)),
                 ),
+                div(
+                  style = "display: inline-block; width: 120%; vertical-align:top;",
+                  div(
+                    style = "display: flex; align-items: center;",
+                    h4("Select the Data Type:", style = "margin-right: 10px;"),
+                    div(
+                        class = "tooltip-container",
+                        actionButton("infoFontSize", "?", style = "background-color: grey; color: white; border-radius: 100%; width: 25px; height: 25px; border: none; margin-left: 10px; font-size: 14px; line-height: 25px; text-align: center; padding: 0;"),
+                        span(class = "tooltip-text", "Select whether your data is continuous or discrete.")
+                    )
+                  ),
+
+                  radioButtons(
+                    "dataType",
+                    "",
+                    choices = c("Continuous" = "continuous", "Discrete" = "discrete"),
+                    selected = "continuous",
+                    inline = TRUE
+                  ),
+
+                  div(
+                    style = "display: flex; align-items: center;",
+                    h4("Select a Method:", style = "margin-right: 10px;"),
+                    div(
+                    class = "tooltip-container",
+                    actionButton("infoFontSize", "?", style = "background-color: grey; color: white; border-radius: 100%; width: 25px; height: 25px; border: none; margin-left: 10px; font-size: 14px; line-height: 25px; text-align: center; padding: 0;"),
+                    span(class = "tooltip-text", "Unbiased method corrects for bias, while the sample method calculates directly from the data. Unbiased method is recommended when the dataset is small")
+                  )
+                  ),
+
+                  radioButtons(
+                    "method",
+                    "",
+                    choices = c("Unbiased" = "unbiased", "Sample" = "sample"),
+                    selected = "unbiased",
+                    inline = TRUE
+                  )
+                )
+              ),
                 column(
                     4,
                     # Bootstrap method and number of samples input
                     div(
-                        style = "display: inline-block; width: 100%; vertical-align:top;",
-                        selectInput(
-                            "bootstrapMethod",
-                            "Choose a Bootstrap Method:",
-                            choices = c("None", "Bootstrap Samples", "Bootstrap Unbiased"),
-                            selected = "None"
+                      style = "display: inline-block; width: 100%; vertical-align:top;",
+                      div(
+                        style = "display: flex; align-items: center;",
+                        h4("Choose a Bootstrap Method:", style = "margin-right: 10px;"),
+                        div(
+                          class = "tooltip-container",
+                          actionButton("infoBootstrapMethod", "?",
+                                       style = "background-color: grey; color: white; border-radius: 100%; width: 25px; height: 25px; border: none; font-size: 14px; line-height: 25px; text-align: center; padding: 0;"
+                          ),
+                          span(
+                            class = "tooltip-text",
+                            style = "margin-left: 10px;",
+                            "Select a bootstrap method to apply resampling. Use 'Bootstrap Unbiased' for small datasets to reduce bias."
+                          )
                         )
+                      ),
+                      selectInput(
+                        "bootstrapMethod",
+                        "",
+                        choices = c("None", "Bootstrap Samples", "Bootstrap Unbiased"),
+                        selected = "None"
+                      )
                     ),
                     div(
-                        style = "display: inline-block; width: 100%; vertical-align:top;",
-                        numericInput(
-                            "numSamples",
-                            "Number of Samples:",
-                            value = 1000,
-                            min = 10,
-                            step = 50
+                      style = "display: inline-block; width: 100%; vertical-align:top;",
+                      div(
+                        style = "display: flex; align-items: center;",
+                        h4("Number of Samples:", style = "margin-right: 10px;"),
+                        div(
+                          class = "tooltip-container",
+                          actionButton("infoNumSamples", "?",
+                                       style = "background-color: grey; color: white; border-radius: 100%; width: 25px; height: 25px; border: none; font-size: 14px; line-height: 25px; text-align: center; padding: 0;"
+                          ),
+                          span(
+                            class = "tooltip-text",
+                            style = "margin-left: 10px;",
+                            "The number of bootstrap samples is capped based on dataset size. For large datasets (>10,000 points), the maximum is 100 samples. For medium datasets (5,000–10,000 points), it's capped at 200. For small datasets, 1,000 samples are used by default."
+                          )
                         )
+                      ),
+                      numericInput(
+                        "numSamples",
+                        "",
+                        value = 1000,
+                        min = 10,
+                        step = 50
+                      )
+                    ),
+                    div(
+                      id = "sampleNotification",
+                      style = "margin-left: 10px; color: red; font-weight: bold;",
+                      textOutput("sampleMessage")
                     )
                 ),
                 column(
@@ -143,6 +202,7 @@ run_app <- function(data) {
         # Sidebar layout
         sidebarLayout(
             sidebarPanel(
+              h3("Customization Panel"),
                 # Conditional panel for continuous and discrete distributions
                 conditionalPanel(
                     condition = "input.dataType == 'continuous'",
@@ -829,32 +889,68 @@ run_app <- function(data) {
             }
         })
 
-        # Handle bootstrap data based on selected samples
-        bootstrap_data <- reactive({
-            req(reactiveData())
-            num_samples <- input$numSamples
-            if(num_samples< 10){
-                stop("Bootstrap numsamples must be at least 10")
-            }
-            if (input$bootstrapMethod == "Bootstrap Samples") {
-                bootstrap_results <- bootstrap_method(reactiveData(), num_samples, "sample", TRUE)
-                bootstrap_results <- data.frame(
-                    squared_skewness = bootstrap_results$skewness ^ 2,
-                    kurtosis = bootstrap_results$kurtosis
-                )
-                return(bootstrap_results)
-            } else if (input$bootstrapMethod == "Bootstrap Unbiased") {
-                bootstrap_results_unbiased <- bootstrap_method(reactiveData(), num_samples, "unbiased", TRUE)
-                bootstrap_results_unbiased <- data.frame(
-                    squared_skewness = bootstrap_results_unbiased$skewness ^ 2,
-                    kurtosis = bootstrap_results_unbiased$kurtosis
-                )
-                return(bootstrap_results_unbiased)
-            } else {
-                return(NULL)
-            }
+        observe({
+          req(reactiveData())  # Ensure the data is loaded
+
+          # Check the size of the dataset
+          dataset_size <- length(reactiveData())
+
+          # Set the default number of bootstrap samples based on dataset size
+          if (dataset_size > 10000) {
+            default_samples <- 50  # Limit to 100 for very large datasets
+            message <- "The number of samples has been limited to 100 due to the large dataset size."
+          } else if (dataset_size > 5000) {
+            default_samples <- 100  # Limit to 200 for medium-sized datasets
+            message <- "The number of samples has been limited to 200 due to the medium dataset size."
+          } else {
+            default_samples <- 1000  # Keep 1000 for small datasets
+            message <- " "
+          }
+
+          # Update the default number of samples in the numericInput
+          updateNumericInput(session, "numSamples", value = default_samples)
+
+          # Send the notification message to be displayed in the UI
+          output$sampleMessage <- renderText({
+            message
+          })
         })
 
+        # Reactive function to handle bootstrap data
+        bootstrap_data <- reactive({
+          req(reactiveData())
+
+          # Get the number of samples input by the user
+          num_samples <- input$numSamples
+
+          # Validation logic: ensure the number of samples is limited if the dataset is large
+          dataset_size <- length(reactiveData())
+
+          if (dataset_size > 10000) {
+            num_samples <- min(100, num_samples)  # Limit to 100 samples for large datasets
+          } else if (dataset_size > 5000) {
+            num_samples <- min(200, num_samples)  # Limit to 200 samples for medium datasets
+          }
+
+          # Perform bootstrap based on the selected method
+          if (input$bootstrapMethod == "Bootstrap Samples") {
+            bootstrap_results <- bootstrap_method(reactiveData(), num_samples, "sample", TRUE)
+            bootstrap_results <- data.frame(
+              squared_skewness = bootstrap_results$skewness ^ 2,
+              kurtosis = bootstrap_results$kurtosis
+            )
+            return(bootstrap_results)
+          } else if (input$bootstrapMethod == "Bootstrap Unbiased") {
+            bootstrap_results_unbiased <- bootstrap_method(reactiveData(), num_samples, "unbiased", TRUE)
+            bootstrap_results_unbiased <- data.frame(
+              squared_skewness = bootstrap_results_unbiased$skewness ^ 2,
+              kurtosis = bootstrap_results_unbiased$kurtosis
+            )
+            return(bootstrap_results_unbiased)
+          } else {
+            return(NULL)
+          }
+        })
         # Restore saved settings (color, size, alpha) for the selected distribution
         observeEvent(input$distributionSelect, {
             if (input$dataType == "continuous") {

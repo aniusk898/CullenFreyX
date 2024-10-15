@@ -74,10 +74,10 @@ To fix this, **unbiased moments** add a correction factor to give a more accurat
 ### Sample Skewness and Kurtosis
 
 
-The **sample skewness** formula is used to measure how symmetrical your data is. The formula is:
+The **sample skewness** formula is used to measure how symmetrical the data is. The formula is:
 
 $$
-\text{Sample Skewness} = \frac{\sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^3}{n}
+\text{Sample Skewness} = \frac{\sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^3}{n} =\frac{M_3}{(M_2)^{3/2}} 
 $$
 
 Where:
@@ -86,16 +86,15 @@ Where:
 - \(\bar{x}\) is the mean of the data.
 - \(s\) is the standard deviation.
 
-This formula gives you an idea of whether your data is skewed to the left or right, but it can be a little off for smaller datasets since it doesn’t account for bias. That's why we sometimes apply corrections when the sample size is small [@joanes1998comparing].
+This formula gives an idea of whether your data is skewed to the left or right, but it can be a little off for smaller datasets since it doesn’t account for bias. That's why we sometimes apply corrections when the sample size is small [@joanes1998comparing].
 
 
 Kurtosis tells you how "peaked" or "flat" your distribution is compared to a normal distribution. Here's the formula for **sample kurtosis**:
 
 $$
-\text{Sample Kurtosis} = \frac{\sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^4}{n} - 3
+\text{Sample Kurtosis} = \frac{\sum_{i=1}^{n} \left( \frac{x_i - \bar{x}}{s} \right)^4}{n}= \frac{M_4}{M_2^2}
 $$
-
-The `-3` at the end is to adjust the value so that the kurtosis of a normal distribution equals 0 (this is called **excess kurtosis**). Like skewness, **sample kurtosis** might be biased in small samples [@decarlo1997].
+Like skewness, **sample kurtosis** might be biased in small samples [@decarlo1997].
 
 ### Unbiased Skewness and Kurtosis
 
@@ -104,7 +103,7 @@ The `-3` at the end is to adjust the value so that the kurtosis of a normal dist
 When working with small datasets, we use **unbiased skewness** to fix the bias in the sample skewness formula. The adjusted formula looks like this:
 
 $$
-\text{Unbiased Skewness} = \frac{\sqrt{n(n-1)}}{n-2} \cdot \text{Sample Skewness}
+\text{Unbiased Skewness} = \frac{\sqrt{n(n-1)}}{n-2} \cdot \text{Sample Skewness} =  \frac{\sqrt{n(n-1)}}{n-2} \cdot \frac{M_3}{(M_2)^{3/2}}
 $$
 
 This formula helps give a better estimate of skewness for smaller datasets [@fisher1930moments].
@@ -329,8 +328,55 @@ The main purpose of launch_cullen_frey_app is to handle different types of input
 
 # Examples os usage
 ```{r}
+set.seed(10)
+
+#Generate Continuous Distributions
+normal_data <- rnorm(100, mean = 0, sd = 1)
+uniform_data <- runif(1000, min = 0, max = 1)
+logistic_data <- rlogis(1000, location = 0, scale = 1)
+gamma_data <- rgamma(10000, shape = 2, rate = 1)
+exp_data <- rexp(100000, rate = 1)
+lognormal_data <- rlnorm(100000, meanlog = 0, sdlog = 0.5)
+beta_data <- rbeta(1000, shape1 = 2, shape2 = 5)
+
+
+continuous_data_list <- list(
+  normal = normal_data,
+  uniform = uniform_data,
+  logistic = logistic_data,
+  gamma = gamma_data,
+  exponential = exp_data,
+  lognormal = lognormal_data,
+  beta = beta_data
+)
+
+set.seed(10)
+# Generate Discerete Distributions
+poisson_data <- rpois(1000, lambda = 3)
+negative_binomial_data <- rnbinom(100000, size = 10, prob = 0.5)
+
+
+discrete_data_list <- list(
+  poisson = poisson_data,
+  negative_binomial = negative_binomial_data
+)
+
+
+data_small <- rnorm(10)  # Small dataset with 10 points
+data_medium <- rnorm(1000)  # Medium dataset with 1000 points
+data_large <- rnorm(10000)  # Large dataset with 10000 points
+data_very_large <- rnorm(1e6)  # Very large dataset with 1 million points
+
+list_of_datasets_varied <- list(
+  Small = data_small,
+  Medium = data_medium,
+  Large = data_large,
+  Very_Large = data_very_large
+)
+
+
 # Example 1: Named list of numeric vectors
-data1 <- list(a = rnorm(100), b = runif(100))
+data1 <- list(a = rnorm(100), b = runif(10))
 
 # Example 2: Unnamed list of numeric vectors
 data2 <- list(rpois(100, lambda = 5), rexp(100))
@@ -348,9 +394,13 @@ data5 <- c(a = rnorm(100), b = runif(100))
 data6 <- runif(100)
 
 
-# Example 7: Empty data frame
+# Example 7: Empty data frame - It will show the app but not the distributions
 data7 <- data.frame()
 
+
+set.seed(10)
+lognormal_data <- rlnorm(100000, meanlog = 0, sdlog = 0.5)
+descdist(lognormal_data)
 ```
 
 
