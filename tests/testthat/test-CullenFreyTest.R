@@ -90,42 +90,42 @@ test_that("calculate_statistics throws error for NULL input", {
   expect_error(calculate_statistics(NULL), "Dataset must not be empty.")
 })
 
-# Tests for launch_cullen_frey_app function
+# Tests for cullenfrey_x function
 
 # Test for a simple dataframe input
-test_that("launch_cullen_frey_app works for a dataframe input", {
+test_that("cullenfrey_x works for a dataframe input", {
   data <- data.frame(A = rnorm(10), B = rnorm(10))
-  expect_silent(launch_cullen_frey_app(data))
+  expect_silent(cullenfrey_x(data))
 })
 
 # Test for a list of vectors input
-test_that("launch_cullen_frey_app works for a list of vectors", {
+test_that("cullenfrey_x works for a list of vectors", {
   data <- list(a = rnorm(100), b = runif(100))
-  expect_silent(launch_cullen_frey_app(data))
+  expect_silent(cullenfrey_x(data))
 })
 
 # Test for a list of dataframes input
-test_that("launch_cullen_frey_app works for a list of dataframes", {
+test_that("cullenfrey_x works for a list of dataframes", {
   data <- list(df1 = data.frame(A = rnorm(100), B = runif(100)),
                df2 = data.frame(C = rpois(100, 5), D = rexp(100)))
-  expect_silent(launch_cullen_frey_app(data))
+  expect_silent(cullenfrey_x(data))
 })
 
 # Test for a single vector input
-test_that("launch_cullen_frey_app works for a single vector input", {
+test_that("cullenfrey_x works for a single vector input", {
   data <- rnorm(10)
-  expect_silent(launch_cullen_frey_app(data))
+  expect_silent(cullenfrey_x(data))
 })
 
 # Test for input with missing names in a list
-test_that("launch_cullen_frey_app assigns names to unnamed list elements", {
+test_that("cullenfrey_x assigns names to unnamed list elements", {
   data <- list(rnorm(100), rexp(100))
-  processed_data <- launch_cullen_frey_app(data)
+  processed_data <- cullenfrey_x(data)
   expect_true(all(names(processed_data) != ""))
 })
 
 # Test for input with a matrix as input
-test_that("launch_cullen_frey_app works for matrix input", {
+test_that("cullenfrey_x works for matrix input", {
   data_matrix <- matrix(rnorm(100), nrow = 10)
-  expect_silent(launch_cullen_frey_app(data_matrix))
+  expect_silent(cullenfrey_x(data_matrix))
 })

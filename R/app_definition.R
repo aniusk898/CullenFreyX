@@ -169,7 +169,7 @@ run_app <- function(data) {
                           span(
                             class = "tooltip-text",
                             style = "margin-left: 10px;",
-                            "The number of bootstrap samples is capped based on dataset size. For large datasets (>10,000 points), the maximum is 100 samples. For medium datasets (5,000–10,000 points), it's capped at 200. For small datasets, 1,000 samples are used by default."
+                            "The number of bootstrap samples is capped based on dataset size. For large datasets (>10,000 points), the maximum is 100 samples. For medium datasets (5,000 to 10,000 points), it is capped at 200. For small datasets, 1,000 samples are used by default."
                           )
                         )
                       ),
@@ -1167,7 +1167,7 @@ run_app <- function(data) {
                         )
                     )
 
-                    # Crear el gráfico
+                    # Create the graph
                     p <- ggplot() +
                         geom_polygon(
                             data = polygon_data,
@@ -1176,8 +1176,8 @@ run_app <- function(data) {
                                 y = y,
                                 color = "NegBin"
                             ),
-                            linewidth = line_size_map[["NegBin"]],  # Tamaño de línea
-                            alpha = line_alpha_map[["NegBin"]]  # Alpha predeterminado a 0.3
+                            linewidth = line_size_map[["NegBin"]],
+                            alpha = line_alpha_map[["NegBin"]]
                         ) +
                         geom_line(
                             data = poisson_line,
@@ -1187,8 +1187,8 @@ run_app <- function(data) {
                                 color = "Poisson",
                                 linetype = "Poisson"
                             ),
-                            linewidth = line_size_map[["Poisson"]],  # Tamaño de línea
-                            alpha = line_alpha_map[["Poisson"]]  # Transparencia (alpha)
+                            linewidth = line_size_map[["Poisson"]],
+                            alpha = line_alpha_map[["Poisson"]]
                         ) +
                         scale_shape_manual(values = c(
                             "Observed" = 1,
