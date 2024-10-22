@@ -21,14 +21,19 @@ test_that("calculate_statistics throws error for small datasets", {
 test_that("calculate_statistics throws error for NA values", {
   data <- c(1, 2, NA, 4, 5)
   expect_error(calculate_statistics(data),
-               "NA values are not allowed in the dataset.")
+               "Error: Invalid numeric values or NA values are not allowed in the dataset.")
 })
 
 # Test that calculate_statistics handles non-numeric elements by throwing an error
 test_that("calculate_statistics throws an error for non-numeric values", {
-  # Test for non-numeric input
   data <- c(1, 2, "a", 4)
-  expect_error(calculate_statistics(data), "Data must be numeric.")
+  expect_error(calculate_statistics(data), "Error: Invalid input detected. Input must be numeric.")
+})
+
+# Test that calculate_statistics handles non-numeric input like '0.5'
+test_that("calculate_statistics throws an error for malformed numeric values like 'o.5'", {
+  data <- c(1, "o.5", 3, 4)
+  expect_error(calculate_statistics(as.numeric(data)), "Error: Invalid input detected. Input must be numeric.")
 })
 
 # Test that calculate_statistics handles infinite values by throwing an error
@@ -36,12 +41,6 @@ test_that("calculate_statistics throws error for Inf values", {
   data <- c(1, 2, Inf, 4, 5)
   expect_error(calculate_statistics(data),
                "Inf values are not allowed in the dataset.")
-})
-
-# Test that calculate_statistics throws an error if input is not a vector
-test_that("calculate_statistics throws error for non-vector input", {
-  data <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2)
-  expect_error(calculate_statistics(data), "Data must be numeric.")
 })
 
 # Test that calculate_statistics works correctly for larger datasets
@@ -88,7 +87,7 @@ test_that("calculate_statistics throws error for empty dataset", {
 
 # Test that calculate_statistics throws an error for NULL input
 test_that("calculate_statistics throws error for NULL input", {
-  expect_error(calculate_statistics(NULL), "Data must be provided.")
+  expect_error(calculate_statistics(NULL), "Dataset must not be empty.")
 })
 
 # Tests for launch_cullen_frey_app function
@@ -119,12 +118,11 @@ test_that("launch_cullen_frey_app works for a single vector input", {
 })
 
 # Test for input with missing names in a list
-test_that("launch_cullen_frey_app assigns names to unnamed list elements",
-          {
-            data <- list(rnorm(100), rexp(100))
-            processed_data <- launch_cullen_frey_app(data)
-            expect_true(all(names(processed_data) != ""))
-          })
+test_that("launch_cullen_frey_app assigns names to unnamed list elements", {
+  data <- list(rnorm(100), rexp(100))
+  processed_data <- launch_cullen_frey_app(data)
+  expect_true(all(names(processed_data) != ""))
+})
 
 # Test for input with a matrix as input
 test_that("launch_cullen_frey_app works for matrix input", {

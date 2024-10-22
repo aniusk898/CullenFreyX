@@ -463,47 +463,35 @@ run_app <- function(data) {
 
             # Ensure the data is not empty
             if (length(selected_data) == 0) {
-                stop("The selected dataset is empty.")
-            }
-
-            if (is.list(data)) {
-                # Check for nested lists of lists (unsupported case)
-                if (any(sapply(data, is.list))) {
-                    stop(
-                        "Nested lists are not supported. Please provide a flat list or data frame."
-                    )
-                }
+              stop("The selected dataset is empty.")
             }
 
             # Ensure the data has at least 4 observations
             if (length(selected_data) < 4) {
-                stop("The dataset must contain at least 4 data points for analysis.")
+              stop("The dataset must contain at least 4 data points for analysis.")
             }
 
-            # Ensure the data is numeric
-            if (!is.numeric(selected_data)) {
-                stop("The data must be numeric.")
-            }
+            # Try to convert the data to numeric and handle errors
+            selected_data <- tryCatch({
+              as.numeric(selected_data)
+            }, warning = function(w) {
+              stop("Warning: Unable to convert input to numeric.")
+            }, error = function(e) {
+              stop("Error: The selected data column contains non-numeric values.")
+            })
 
-            # Check for missing values
+            # Check for NA or infinite values after conversion
             if (any(is.na(selected_data))) {
-                stop(
-                    "The dataset contains missing (NA) values. Please clean the data before analysis."
-                )
+              stop("The dataset contains missing (NA) values. Please clean the data before analysis.")
             }
 
-            # Check for infinite values
             if (any(!is.finite(selected_data))) {
-                stop(
-                    "The dataset contains infinite values. Please handle them before analysis."
-                )
+              stop("The dataset contains infinite values. Please handle them before analysis.")
             }
 
             # Check for identical values (e.g., all values are the same)
             if (all(selected_data == selected_data[1])) {
-                stop(
-                    "The dataset contains identical values, which may cause problems in statistical analysis."
-                )
+              stop("The dataset contains identical values, which may cause problems in statistical analysis.")
             }
 
 
@@ -575,17 +563,12 @@ run_app <- function(data) {
         data_info <- reactiveVal()
 
         # Observe event when selected column or method changes
-        # Observe event when selected column or method changes
         observe({
           req(reactiveData())
 
-          # Obtiene el método seleccionado por el usuario
           method_selected <- input$method
-
-          # Usa el valor de input$dataType seleccionado por el usuario sin cambiarlo automáticamente
           data_type_selected <- input$dataType
 
-          # Actualiza la información según el tipo de dato seleccionado por el usuario y el método
           if (data_type_selected == "continuous") {
             data_info(data_type.continuous(reactiveData(), method = method_selected))
           } else if (data_type_selected == "discrete") {
@@ -593,20 +576,15 @@ run_app <- function(data) {
           }
         })
 
-        # Update data type manually when the user changes the data type
-
-
         observeEvent({
           input$dataType
           input$method
         }, {
           req(reactiveData())
 
-          # Obtiene el tipo de dato y el método seleccionado
           data_type_selected <- input$dataType
           method_selected <- input$method
 
-          # Actualiza la información con base en el tipo de dato y método
           if (data_type_selected == "continuous") {
             data_info(data_type.continuous(reactiveData(), method = method_selected))
           } else if (data_type_selected == "discrete") {
@@ -896,12 +874,12 @@ run_app <- function(data) {
           dataset_size <- length(reactiveData())
 
           # Set the default number of bootstrap samples based on dataset size
-          if (dataset_size > 10000) {
-            default_samples <- 50  # Limit to 100 for very large datasets
-            message <- "The number of samples has been limited to 100 due to the large dataset size."
-          } else if (dataset_size > 5000) {
-            default_samples <- 100  # Limit to 200 for medium-sized datasets
-            message <- "The number of samples has been limited to 200 due to the medium dataset size."
+          if (dataset_size >= 100000) {
+            default_samples <- 100  # Limit to 500 for very large datasets
+            message <- "The number of samples should be limited to 500 due to dataset size."
+          } else if (dataset_size >= 30000) {
+            default_samples <- 200  # Limit to 1000 for medium-sized datasets
+            message <- "The number of samples should be limited to 1000 due to dataset size."
           } else {
             default_samples <- 1000  # Keep 1000 for small datasets
             message <- " "
@@ -923,13 +901,17 @@ run_app <- function(data) {
           # Get the number of samples input by the user
           num_samples <- input$numSamples
 
+          if(num_samples< 10){
+            stop("Bootstrap numsamples must be at least 10")
+          }
+
           # Validation logic: ensure the number of samples is limited if the dataset is large
           dataset_size <- length(reactiveData())
 
-          if (dataset_size > 10000) {
-            num_samples <- min(100, num_samples)  # Limit to 100 samples for large datasets
-          } else if (dataset_size > 5000) {
-            num_samples <- min(200, num_samples)  # Limit to 200 samples for medium datasets
+          if (dataset_size >= 100000) {
+            num_samples <- min(500, num_samples)  # Limit to 500 samples for large datasets
+          } else if (dataset_size >= 50000) {
+            num_samples <- min(1000, num_samples)  # Limit to 1000 samples for medium datasets
           }
 
           # Perform bootstrap based on the selected method
@@ -969,9 +951,9 @@ run_app <- function(data) {
 
             updateSliderInput(session, "pointSize", value = saved_size)
             updateSliderInput(session, "pointAlpha", value = saved_alpha)
-            updateColourInput(session, "colorPicker", value = saved_color)  # Update color input
-            updateSliderInput(session, "lineSize", value = saved_line_size)  # Nuevo: actualizar tamaño de línea
-            updateSliderInput(session, "lineAlpha", value = saved_line_alpha)  # Nuevo: actualizar transparencia de línea
+            updateColourInput(session, "colorPicker", value = saved_color)
+            updateSliderInput(session, "lineSize", value = saved_line_size)
+            updateSliderInput(session, "lineAlpha", value = saved_line_alpha)
         })
 
 
@@ -1139,13 +1121,13 @@ run_app <- function(data) {
                     # Discrete distribution plot
                     poisson_line <- data_info()$poisson_line
 
-                    # Mapa de tamaños de línea
+                    # Line size map
                     line_size_map <- c(
                         "Poisson" = ifelse(input$distributionSelect == "Poisson", input$pointSize, saved_line_sizes_discrete()[["Poisson"]] %||% 1),
                         "NegBin" = ifelse(input$distributionSelect == "NegBin", input$pointSize, saved_line_sizes_discrete()[["NegBin"]] %||% 1)
                     )
 
-                    # Mapa de transparencia (alpha)
+                    # Transparency map
                     line_alpha_map <- c(
                         "Poisson" = ifelse(input$distributionSelect == "Poisson", input$pointAlpha, saved_line_alpha_discrete()[["Poisson"]] %||% 1),
                         "NegBin" = ifelse(input$distributionSelect == "NegBin", input$pointAlpha, 0.3)  # Valor predeterminado 0.3
@@ -1347,7 +1329,7 @@ run_app <- function(data) {
                         selector = ".plotly")
 
                 # Step 4: Copy the PNG to the current working directory
-                plotFile <- file.path(getwd(), "grafico.png")
+                plotFile <- file.path(getwd(), "graph.png")
                 file.copy(tempPlotFile, plotFile, overwrite = TRUE)
 
                 # Step 5: Create a temporary RMarkdown file for the report

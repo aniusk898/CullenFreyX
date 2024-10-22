@@ -309,10 +309,10 @@ knitr::include_graphics("images/tooltip.png")
 
 ```
 
-# `launch_cullen_frey_app`
+# `cullenfrey_x`
 This function launches the `run_app()` application, allowing users to visualize the skewness and kurtosis of various datasets and distributions. This function accepts flexible input formats, including vectors, lists of vectors, or dataframes, and processes the data to ensure all elements have appropriate names before launching the interactive visualization app.
 
-The main purpose of launch_cullen_frey_app is to handle different types of input data and ensure that they are correctly formatted before passing them to run_app() for visualization. This makes launch_cullen_frey_app more flexible in terms of input data types compared to run_app(), which requires properly structured data.. So, the differences between this function and `run_app()` are: 
+The main purpose of cullenfrey_x is to handle different types of input data and ensure that they are correctly formatted before passing them to run_app() for visualization. This makes cullenfrey_x more flexible in terms of input data types compared to run_app(), which requires properly structured data.. So, the differences between this function and `run_app()` are: 
 
 - **Input Flexibility**: The function works with different data structures such as vectors, lists, and dataframes. If a vector is provided, it’s converted into a list. If a list is provided without names for each dataset, the function automatically assigns names (`"dataset1"`, `"dataset2"`, etc.).
   
@@ -350,21 +350,28 @@ continuous_data_list <- list(
   beta = beta_data
 )
 
+#cullenfrey_x(continuous_data_list)
+```
+
+```{r}
 set.seed(10)
 # Generate Discerete Distributions
 poisson_data <- rpois(1000, lambda = 3)
 negative_binomial_data <- rnbinom(100000, size = 10, prob = 0.5)
 
-
 discrete_data_list <- list(
   poisson = poisson_data,
   negative_binomial = negative_binomial_data
 )
+#cullenfrey_x(discrete_data_list)
+```
 
+```{r}
+set.seed(10)
 
 data_small <- rnorm(10)  # Small dataset with 10 points
 data_medium <- rnorm(1000)  # Medium dataset with 1000 points
-data_large <- rnorm(10000)  # Large dataset with 10000 points
+data_large <- rnorm(50000)  # Large dataset with 10000 points
 data_very_large <- rnorm(1e6)  # Very large dataset with 1 million points
 
 list_of_datasets_varied <- list(
@@ -373,34 +380,19 @@ list_of_datasets_varied <- list(
   Large = data_large,
   Very_Large = data_very_large
 )
+cullenfrey_x(list_of_datasets_varied)
+```
 
 
-# Example 1: Named list of numeric vectors
-data1 <- list(a = rnorm(100), b = runif(10))
+```{r}
+# Unnamed list of numeric vectors
+data_unnamed <- list(rpois(100, lambda = 5), rexp(100))
 
-# Example 2: Unnamed list of numeric vectors
-data2 <- list(rpois(100, lambda = 5), rexp(100))
+# Matrix (which can be treated as a list of columns)
+data_matrix <- matrix(rnorm(20), nrow = 10, ncol = 2)
 
-# Example 3: Simple numeric vector
-data3 <- rnorm(10)
-
-# Example 4: Matrix (which can be treated as a list of columns)
-data4 <- matrix(rnorm(20), nrow = 10, ncol = 2)
-
-# Example 5: Named numeric vector
-data5 <- c(a = rnorm(100), b = runif(100))
-
-# Example 6 : Unnamed numeric vector
-data6 <- runif(100)
-
-
-# Example 7: Empty data frame - It will show the app but not the distributions
-data7 <- data.frame()
-
-
-set.seed(10)
-lognormal_data <- rlnorm(100000, meanlog = 0, sdlog = 0.5)
-descdist(lognormal_data)
+# Empty data frame - It will show the app but not the distributions
+data_empty <- data.frame()
 ```
 
 

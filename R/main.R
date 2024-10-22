@@ -23,7 +23,7 @@ utils::globalVariables(
 #' @param data A numeric vector, list, matrix  or dataframe that contains the datasets to be analyzed.
 #' @return Launches the Shiny web application.
 #' @export
-launch_cullen_frey_app <- function(data) {
+cullenfrey_x <- function(data) {
   if (!is.vector(data) && !is.list(data) && !is.data.frame(data) && !is.matrix(data)) {
     stop("Input must be a list, vector, dataframe, or matrix.")
   }

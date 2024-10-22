@@ -63,10 +63,24 @@ calculate_statistics <- function(data, method) {
 #' calculate_statistics(data)
 calculate_statistics <- function(data, method = "unbiased") {
 
+  # Ensure all input is converted to numeric, catching invalid entries like "o.5"
+  data <- tryCatch({
+    as.numeric(data)
+  }, warning = function(w) {
+    stop("Warning: Unable to convert input to numeric.")
+  }, error = function(e) {
+    stop("Error: Invalid input detected. Input must be numeric.")
+  })
+
+  # Check if the conversion resulted in NA values
+  if (any(is.na(data))) {
+    stop("Error: Invalid numeric values or NA values are not allowed in the dataset.")
+  }
+
+  # Input validation
   if (is.null(data)) stop("Data must be provided.")
   if (length(data) == 0) stop("Dataset must not be empty.")
   if (!is.numeric(data) || !is.vector(data)) stop("Data must be numeric.")
-  if (any(is.na(data))) stop("NA values are not allowed in the dataset.")
   if (any(is.infinite(data))) stop("Inf values are not allowed in the dataset.")
   if (length(data) < 4) stop("Skewness and Kurtosis require at least 4 data points.")
 
