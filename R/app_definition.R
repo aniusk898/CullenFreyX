@@ -169,7 +169,7 @@ run_app <- function(data) {
                           span(
                             class = "tooltip-text",
                             style = "margin-left: 10px;",
-                            "The number of bootstrap samples is capped based on dataset size. For large datasets (>10,000 points), the maximum is 100 samples. For medium datasets (5,000 to 10,000 points), it is capped at 200. For small datasets, 1,000 samples are used by default."
+                            "The number of bootstrap samples is capped based on dataset size. For large datasets (>=10,000 points), the maximum is 500 samples. For medium datasets (3,000 to 10,000 points), it is capped at 1000. For small datasets, 1,000 samples are used by default."
                           )
                         )
                       ),

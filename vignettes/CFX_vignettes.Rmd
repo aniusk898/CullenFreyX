@@ -241,11 +241,14 @@ This function, written in **Rcpp**, implements a general bootstrap method to est
 
 
 ## `run_app`
-This is the core function that launches the Shiny app for visualizing distributions using the Cullen-Frey graph. It handles the interactive elements like data selection, distribution display, and customization
+This function, run_app(), is the core element that launches the Shiny app to visualize distributions interactively using the Cullen-Frey graph. It manages the interactive components, such as data selection, distribution display, and customization options. However, it does not perform any data handling or validation itself. Therefore, it can be called directly but only accepts dataframes or lists with named elements, as other data structures will not be processed correctly.
 
 ```{r}
-data <-rpois(100, lambda = 5)
-run_app(data) # Launch the app
+data_frame_example <- data.frame(
+  X = c(1, 2, 3, 4),
+  Y = c(4, 5, 6, 7)
+)
+run_app(data_frame_example) # Launch the app
 
 ```
 This will launch the Cullen-Frey interactive graph application in a new window. In this app, you can interact with datasets, adjust graph settings, and customize the appearance of the graph. Once the app is running, you will be able to:
@@ -258,7 +261,8 @@ This will launch the Cullen-Frey interactive graph application in a new window. 
 - **Insert Comments**: Add custom comments for each distribution, which will be displayed on hover in the graph.
 - **Adjust Display Settings**: You can dynamically adjust the point size, transparency (alpha), and font size for the plot.
 - **Enable/Disable Distributions**: Toggle the visibility of specific distributions to focus on certain types of data or analysis.
-- **Download Graph**: Export the graph in PNG format or download a report in PDF format with the graph, statistics, and comments included.
+- **Download Graph**: Export the graph as a PNG image or download a PDF report containing the graph, statistical summaries, and any added comments, making it easy to share insights and results.
+
 
 # Dataset and Download Controls Panel
 
@@ -326,7 +330,21 @@ The main purpose of cullenfrey_x is to handle different types of input data and 
 
 
 
-# Examples os usage
+# Examples of usage
+```{r}
+# Numeric vector
+vector_example <- c(1, 2, 3, 4, 5, 6)
+
+# Numeric matrix
+data_matrix <- matrix(rnorm(20), nrow = 10, ncol = 2)
+
+# Matrix (which can be treated as a list of columns)
+data_matrix <- matrix(rnorm(20), nrow = 10, ncol = 2)
+
+# Unnamed list of numeric vectors
+data_unnamed <- list(rpois(100, lambda = 5), rexp(100))
+```
+
 ```{r}
 set.seed(10)
 
@@ -380,19 +398,41 @@ list_of_datasets_varied <- list(
   Large = data_large,
   Very_Large = data_very_large
 )
-cullenfrey_x(list_of_datasets_varied)
+#cullenfrey_x(list_of_datasets_varied)
 ```
 
 
+# Common Errors and Solutions
 ```{r}
-# Unnamed list of numeric vectors
-data_unnamed <- list(rpois(100, lambda = 5), rexp(100))
+# Vector with fewer than 4 points (insufficient for skewness and kurtosis calculations)
+small_data_example <- c(1, 2, 3) # Expect an error indicating a minimum of 4 data points is required.
 
-# Matrix (which can be treated as a list of columns)
-data_matrix <- matrix(rnorm(20), nrow = 10, ncol = 2)
+# Data frame with mixed types (unsupported in numeric calculations)
+mixed_data_example <- data.frame(
+  X = c(1, 2, 3, 4),
+  Y = c("a", "b", "c", "d")
+)
+# This will raise an error, as the package expects purely numeric data.
 
-# Empty data frame - It will show the app but not the distributions
+# Data with NA values (unsupported due to missing values)
+data_with_NA <- c(1, 2, NA, 4, 5)
+# This will result in an error indicating NA values are not allowed.
+
+# Data with malformed values (e.g., a string where a number is expected)
+data_malformed <- c(1, "o.5", 3, 4)
+# This raises an error, as "o.5" is not interpretable as numeric.
+
+# Data with Inf values (unsupported as Inf values break statistical calculations)
+data_with_Inf <- c(1, 2, Inf, 4, 5)
+# This will throw an error indicating Inf values are not allowed.
+
+# Empty data frame (does not allow statistical calculations, though the app might load)
 data_empty <- data.frame()
+# This will likely show the app but without any data to analyze or display in the distributions.
+
+# Unsupported data scenarios to illustrate errors in `cullenfrey_x()`
+# Run these tests individually to ensure error handling is functional and informative.
+
 ```
 
 
